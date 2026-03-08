@@ -15,6 +15,7 @@ export function Nav() {
   const pathname = usePathname()
   const navRef = useRef<HTMLElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const hamburgerRef = useRef<HTMLButtonElement>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
 
   // Desktop: fade nav in/out based on cursor proximity to top 12% of viewport
@@ -59,10 +60,12 @@ export function Nav() {
     return () => document.removeEventListener('keydown', handleKey)
   }, [mobileOpen])
 
-  // Fix 5 — Focus management on open
+  // Focus management: close button on open, hamburger on close
   useEffect(() => {
-    if (mobileOpen && closeButtonRef.current) {
-      closeButtonRef.current.focus()
+    if (mobileOpen) {
+      closeButtonRef.current?.focus()
+    } else {
+      hamburgerRef.current?.focus()
     }
   }, [mobileOpen])
 
@@ -99,8 +102,9 @@ export function Nav() {
         </ul>
       </nav>
 
-      {/* Fix 3 — Mobile: hamburger toggle — hidden when overlay is open */}
+      {/* Mobile: hamburger toggle — hidden when overlay is open */}
       <button
+        ref={hamburgerRef}
         className={`fixed top-6 right-6 z-50 md:hidden font-sans text-[22px] text-text-light leading-none pointer-events-auto ${mobileOpen ? 'hidden' : ''}`}
         onClick={() => setMobileOpen(true)}
         aria-label="Open menu"
