@@ -38,7 +38,7 @@ export function AboutContent({ data }: { data: any }) {
       {/* Split hero */}
       <div className="flex flex-col md:flex-row min-h-[80vh]">
         {data.portrait && (
-          <div className="relative md:w-[45%] h-96 md:h-auto">
+          <div className="relative md:w-[45%] h-96 md:h-auto md:min-h-[70vh]">
             <Image
               src={urlFor(data.portrait).width(900).url()}
               alt="Алиса Волосникова"

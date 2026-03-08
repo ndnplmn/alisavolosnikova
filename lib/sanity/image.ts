@@ -36,5 +36,5 @@ export function urlFor(source: SanityImageSource) {
 }
 
 export function getBlurDataURL(lqip?: string): string {
-  return lqip ?? 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+  return lqip || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 }
