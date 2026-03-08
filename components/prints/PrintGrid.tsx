@@ -51,7 +51,7 @@ export function PrintGrid({ prints }: { prints: any[] }) {
       {/* Grid */}
       <div ref={gridRef} className="px-6 py-12">
         {/* Full width first print */}
-        {filtered[0] && <PrintCard print={filtered[0]} full />}
+        {filtered[0] && <PrintCard key={filtered[0]._id} print={filtered[0]} full />}
         {/* Two-column for rest */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
           {filtered.slice(1).map((p: any) => <PrintCard key={p._id} print={p} />)}
@@ -85,8 +85,9 @@ export function PrintGrid({ prints }: { prints: any[] }) {
 
 function PrintCard({ print, full = false }: { print: any; full?: boolean }) {
   const editionSize = print.editionSize ?? 10
-  const editionsSold = print.editionsSold ?? 0
+  const editionsSold = Math.min(print.editionsSold ?? 0, editionSize)
   const editionsLeft = editionSize - editionsSold
+  const isSoldOut = editionsLeft === 0
   const photoTitle = print.photo?.title ?? 'Fine Art Print'
   const contactUrl = `/contact?print=${encodeURIComponent(photoTitle)}`
 
@@ -122,12 +123,16 @@ function PrintCard({ print, full = false }: { print: any; full?: boolean }) {
               Edition of {editionSize} · {print.dimensions ?? '—'} · {print.paper ?? '—'}
             </p>
             <p className="font-sans text-[9px] tracking-extreme text-muted mt-0.5">
-              {editionsLeft} of {editionSize} remaining
+              {isSoldOut ? 'Sold out' : `${editionsLeft} of ${editionSize} remaining`}
             </p>
           </div>
-          <Link href={contactUrl} className="font-sans text-[9px] tracking-extreme hover:opacity-60 transition-opacity" data-cursor="link">
-            INQUIRE →
-          </Link>
+          {isSoldOut ? (
+            <span className="font-sans text-[9px] tracking-extreme text-muted">SOLD OUT</span>
+          ) : (
+            <Link href={contactUrl} className="font-sans text-[9px] tracking-extreme hover:opacity-60 transition-opacity" data-cursor="link">
+              INQUIRE →
+            </Link>
+          )}
         </div>
       </div>
     </div>
