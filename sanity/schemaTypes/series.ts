@@ -34,6 +34,7 @@ export const series = defineType({
       type: 'array',
       title: 'Photos',
       of: [{ type: 'reference', to: [{ type: 'photo' }] }],
+      validation: r => r.min(1),
     }),
     defineField({ name: 'order', type: 'number', title: 'Display Order' }),
   ],

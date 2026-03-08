@@ -30,6 +30,9 @@ export const print = defineType({
       options: { list: [{ title: 'Large Format', value: 'large' }, { title: 'Small Format', value: 'small' }], layout: 'radio' },
     }),
   ],
+  orderings: [
+    { title: 'Photo Title A–Z', name: 'photoTitleAsc', by: [{ field: 'photo.title', direction: 'asc' }] },
+  ],
   preview: {
     select: { title: 'photo.title', media: 'photo.image', editionSize: 'editionSize' },
     prepare({ title, media, editionSize }) {

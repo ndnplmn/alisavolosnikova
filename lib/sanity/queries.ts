@@ -70,10 +70,10 @@ export const ABOUT_QUERY = `
   }
 `
 
-export const CONTACT_QUERY = `*[_type == "contact"][0]`
+export const CONTACT_QUERY = `*[_type == "contact"][0] { collaborationTypes, instagram, email, location }`
 
 export const FEATURED_SERIES_QUERY = `
-  *[_type == "series"] | order(order asc)[0..2] {
+  *[_type == "series"] | order(order asc)[0..1] {
     _id,
     title,
     "slug": slug.current,

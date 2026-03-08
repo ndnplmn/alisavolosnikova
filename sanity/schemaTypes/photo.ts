@@ -34,6 +34,10 @@ export const photo = defineType({
     defineField({ name: 'availableAsPrint', type: 'boolean', title: 'Available as Print', initialValue: false }),
     defineField({ name: 'altText', type: 'string', title: 'Alt Text (Accessibility)' }),
   ],
+  orderings: [
+    { title: 'Title A–Z', name: 'titleAsc', by: [{ field: 'title', direction: 'asc' }] },
+    { title: 'Year (Newest)', name: 'yearDesc', by: [{ field: 'year', direction: 'desc' }] },
+  ],
   preview: {
     select: { title: 'title', media: 'image' },
     prepare({ title, media }) {

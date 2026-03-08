@@ -48,4 +48,10 @@ export const about = defineType({
       ],
     }),
   ],
+  preview: {
+    select: { title: 'statement' },
+    prepare({ title }: { title?: string }) {
+      return { title: title ? title.substring(0, 60) : 'About Page' }
+    },
+  },
 })

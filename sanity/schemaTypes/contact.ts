@@ -13,7 +13,18 @@ export const contact = defineType({
       of: [{ type: 'string' }],
     }),
     defineField({ name: 'instagram', type: 'string', title: 'Instagram Handle', placeholder: 'alisavolosnikova' }),
-    defineField({ name: 'email', type: 'string', title: 'Email Address' }),
+    defineField({
+      name: 'email',
+      type: 'string',
+      title: 'Email Address',
+      validation: r => r.email(),
+    }),
     defineField({ name: 'location', type: 'string', title: 'Location', placeholder: 'Moscow · Available Worldwide' }),
   ],
+  preview: {
+    select: { email: 'email' },
+    prepare({ email }: { email?: string }) {
+      return { title: 'Contact Settings', subtitle: email ?? 'No email set' }
+    },
+  },
 })
