@@ -17,7 +17,7 @@ export function PrintTeaser({ imageUrl, imageAlt = 'Fine art print', blurDataURL
           alt={imageAlt}
           fill
           sizes="(max-width: 768px) 100vw, 512px"
-          placeholder={blurDataURL ? 'blur' : 'empty'}
+          placeholder="blur"
           blurDataURL={blurDataURL ?? getBlurDataURL()}
           className="object-cover"
         />
