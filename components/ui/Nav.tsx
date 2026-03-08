@@ -14,6 +14,7 @@ const NAV_ITEMS = [
 export function Nav() {
   const pathname = usePathname()
   const navRef = useRef<HTMLElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
 
   // Desktop: fade nav in/out based on cursor proximity to top 12% of viewport
@@ -41,6 +42,29 @@ export function Nav() {
   useEffect(() => {
     setMobileOpen(false)
   }, [pathname])
+
+  // Fix 1 — Body scroll lock
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [mobileOpen])
+
+  // Fix 2 — Escape key handler
+  useEffect(() => {
+    if (!mobileOpen) return
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileOpen(false)
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [mobileOpen])
+
+  // Fix 5 — Focus management on open
+  useEffect(() => {
+    if (mobileOpen && closeButtonRef.current) {
+      closeButtonRef.current.focus()
+    }
+  }, [mobileOpen])
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
 
@@ -75,18 +99,27 @@ export function Nav() {
         </ul>
       </nav>
 
-      {/* Mobile: hamburger toggle — top-right */}
+      {/* Fix 3 — Mobile: hamburger toggle — hidden when overlay is open */}
       <button
-        className="fixed top-6 right-6 z-50 md:hidden font-sans text-[22px] text-text-light leading-none pointer-events-auto"
+        className={`fixed top-6 right-6 z-50 md:hidden font-sans text-[22px] text-text-light leading-none pointer-events-auto ${mobileOpen ? 'hidden' : ''}`}
         onClick={() => setMobileOpen(true)}
         aria-label="Open menu"
         aria-expanded={mobileOpen}
+        aria-controls="mobile-nav-overlay"
       >—</button>
 
-      {/* Mobile menu overlay */}
+      {/* Fix 4 — Mobile menu overlay with role="dialog" and aria-modal */}
       {mobileOpen && (
-        <div className="fixed inset-0 bg-dark z-[60] flex flex-col items-center justify-center gap-8 md:hidden">
+        <div
+          id="mobile-nav-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation menu"
+          className="fixed inset-0 bg-dark z-[60] flex flex-col items-center justify-center gap-8 md:hidden"
+        >
+          {/* Fix 5 — ref on close button for focus management */}
           <button
+            ref={closeButtonRef}
             onClick={() => setMobileOpen(false)}
             className="absolute top-6 right-6 font-sans text-[20px] text-text-light leading-none"
             aria-label="Close menu"
