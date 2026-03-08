@@ -8,63 +8,82 @@ interface HeroProps {
   imageAlt?: string
 }
 
-const NAME_LINES = ['АЛИСА', 'ВОЛОС', 'НИКОВА']
+// Two elegant lines — title case, restrained scale
+const NAME_LINES = ['Алиса', 'Волосникова']
 
 export function Hero({ imageUrl, imageAlt = '' }: HeroProps) {
-  const linesRef = useRef<HTMLDivElement>(null)
-  const tagRef   = useRef<HTMLParagraphElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const lines = linesRef.current?.querySelectorAll<HTMLElement>('.hero-name-inner')
-    const tag   = tagRef.current
+    const lines = panelRef.current?.querySelectorAll<HTMLElement>('.hero-name-inner')
+    const meta  = panelRef.current?.querySelectorAll<HTMLElement>('.hero-meta')
     const img   = imageRef.current
-    if (!lines || !tag || !img) return
+    if (!lines || !meta || !img) return
 
-    const tl = gsap.timeline({ delay: 0.15 })
+    const tl = gsap.timeline({ delay: 0.1 })
 
+    // Image sweeps in
     tl.fromTo(img,
-      { clipPath: 'inset(0 100% 0 0)', scale: 1.05 },
-      { clipPath: 'inset(0 0% 0 0)', scale: 1, duration: 1.1, ease: 'power4.inOut' }
+      { clipPath: 'inset(0 100% 0 0)', scale: 1.03 },
+      { clipPath: 'inset(0 0% 0 0)', scale: 1, duration: 1.05, ease: 'power4.inOut' }
     )
+    // Name rises
     .fromTo(lines,
-      { y: '115%' },
-      { y: '0%', duration: 0.85, stagger: 0.1, ease: 'power3.out' },
-      '-=0.65'
+      { y: '105%' },
+      { y: '0%', duration: 0.75, stagger: 0.09, ease: 'power3.out' },
+      '-=0.6'
     )
-    .fromTo(tag,
-      { opacity: 0, y: 6 },
-      { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
-      '-=0.25'
+    // Meta fades
+    .fromTo(meta,
+      { opacity: 0 },
+      { opacity: 1, duration: 0.5, stagger: 0.08, ease: 'power2.out' },
+      '-=0.2'
     )
   }, [])
 
   return (
     <section className="flex" style={{ height: 'calc(100vh - var(--nav-h))' }}>
 
-      {/* Left: dark typographic panel */}
-      <div className="w-[38%] bg-dark flex flex-col justify-between px-8 py-10 shrink-0 overflow-hidden">
-        <div />
+      {/* Left: identity panel — restrained, spacious */}
+      <div
+        ref={panelRef}
+        className="w-[32%] bg-dark flex flex-col justify-between px-10 py-10 shrink-0 overflow-hidden"
+      >
+        {/* Top metadata */}
+        <div className="hero-meta opacity-0">
+          <p className="font-sans text-[8px] tracking-[0.28em] text-text-light/30 uppercase">
+            Москва · 2026
+          </p>
+        </div>
 
-        <div ref={linesRef}>
+        {/* Name — elegant, not dominant */}
+        <div>
           {NAME_LINES.map((line, i) => (
             <div key={i} style={{ overflow: 'hidden' }}>
               <div
-                className="hero-name-inner font-serif italic text-text-light leading-[0.88]"
-                style={{ fontSize: 'clamp(2.8rem, 7.2vw, 8rem)' }}
+                className="hero-name-inner font-serif italic text-text-light"
+                style={{
+                  fontSize: 'clamp(1.7rem, 2.8vw, 3.2rem)',
+                  lineHeight: 1.12,
+                  letterSpacing: '-0.01em',
+                }}
               >
                 {line}
               </div>
             </div>
           ))}
-          <div className="w-8 h-px bg-text-light/20 mt-5 mb-4" />
-          <p ref={tagRef} className="font-sans text-[9px] tracking-[0.28em] text-text-light/40 uppercase">
+
+          <div className="w-6 h-px bg-text-light/15 mt-4 mb-3 hero-meta opacity-0" />
+
+          <p className="hero-meta opacity-0 font-sans text-[8px] tracking-[0.24em] text-text-light/35 uppercase">
             Fine Art Photography
           </p>
         </div>
 
-        <p className="font-sans text-[9px] tracking-[0.22em] text-text-light/20 uppercase">
-          SCROLL ↓
+        {/* Scroll cue */}
+        <p className="hero-meta opacity-0 font-sans text-[8px] tracking-[0.22em] text-text-light/20 uppercase">
+          Scroll
         </p>
       </div>
 
@@ -79,7 +98,7 @@ export function Hero({ imageUrl, imageAlt = '' }: HeroProps) {
           alt={imageAlt}
           fill
           priority
-          sizes="62vw"
+          sizes="68vw"
           className="object-cover"
         />
       </div>
