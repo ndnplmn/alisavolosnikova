@@ -1,13 +1,20 @@
 import { createClient } from 'next-sanity'
 
+const rawProjectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
+
+// Use a valid placeholder when the env var is not yet configured
+const isConfigured = rawProjectId && /^[a-z0-9-]+$/.test(rawProjectId)
+const projectId = isConfigured ? rawProjectId : 'placeholder'
+
 const config = {
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  projectId,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET ?? 'production',
   apiVersion: '2026-03-07',
 }
 
-if (!config.projectId && process.env.NODE_ENV === 'production') {
-  throw new Error('Missing NEXT_PUBLIC_SANITY_PROJECT_ID environment variable')
+if (!isConfigured && process.env.NODE_ENV === 'production') {
+  // eslint-disable-next-line no-console
+  console.warn('Sanity is not configured — data fetching will be skipped.')
 }
 
 // Public client — CDN-cached, for production page rendering
