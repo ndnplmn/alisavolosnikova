@@ -34,7 +34,7 @@ export function AboutContent({ data }: { data: any }) {
   }, [])
 
   return (
-    <div className="min-h-screen bg-light text-text-dark pt-20">
+    <div className="min-h-screen bg-light text-text-dark">
       {/* Split hero */}
       <div className="flex flex-col md:flex-row min-h-[80vh]">
         {data.portrait && (

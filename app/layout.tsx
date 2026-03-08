@@ -1,37 +1,35 @@
 import type { Metadata, Viewport } from 'next'
 import { Cormorant_Garamond, Inter } from 'next/font/google'
 import './globals.css'
-import { Providers } from './providers'
-import { Nav } from '@/components/ui/Nav'
+import { Providers }      from './providers'
+import { Nav }            from '@/components/ui/Nav'
+import { ScrollProgress } from '@/components/ui/ScrollProgress'
 
 const cormorant = Cormorant_Garamond({
-  subsets: ['latin', 'cyrillic'],
-  weight: ['300', '400', '500'],
-  style: ['normal', 'italic'],
+  subsets:  ['latin', 'cyrillic'],
+  weight:   ['300', '400', '500'],
+  style:    ['normal', 'italic'],
   variable: '--font-serif',
-  display: 'swap',
+  display:  'swap',
 })
 
 const inter = Inter({
-  subsets: ['latin'],
+  subsets:  ['latin'],
   variable: '--font-sans',
-  display: 'swap',
+  display:  'swap',
 })
 
 export const metadata: Metadata = {
-  title: 'Алиса Волосникова — Photographer',
+  title:       'Алиса Волосникова — Photographer',
   description: 'Fine art photography by Алиса Волосникова.',
   openGraph: {
-    title: 'Алиса Волосникова',
+    title:       'Алиса Волосникова',
     description: 'Fine art photography',
-    type: 'website',
+    type:        'website',
   },
 }
 
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-}
+export const viewport: Viewport = { width: 'device-width', initialScale: 1 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -39,8 +37,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body suppressHydrationWarning>
         <Nav />
         <Providers>
-          {children}
+          {/* All page content is pushed below the fixed nav */}
+          <div style={{ paddingTop: 'var(--nav-h)' }}>
+            {children}
+          </div>
         </Providers>
+        <ScrollProgress />
       </body>
     </html>
   )

@@ -11,24 +11,24 @@ interface SeriesCardProps {
     asset: { url: string; metadata: { lqip: string; dimensions: { width: number; height: number } } }
     hotspot?: { x: number; y: number }
   }
+  seriesId?: string
 }
 
 function resolveImageUrl(coverImage: SeriesCardProps['coverImage']): string {
   const rawUrl = coverImage?.asset?.url ?? ''
-  // If it's already an absolute URL (e.g. Unsplash placeholder), use it directly
   if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) return rawUrl
-  // Otherwise let Sanity image builder handle it
-  return urlFor(coverImage).width(640).url()
+  return urlFor(coverImage).width(900).url()
 }
 
-export function SeriesCard({ title, slug, year, photoCount, coverImage, seriesId }: SeriesCardProps & { seriesId?: string }) {
+export function SeriesCard({ title, slug, year, photoCount, coverImage, seriesId }: SeriesCardProps) {
   return (
     <Link
       href={`/work/${slug}`}
-      className="group block relative flex-shrink-0 w-56 sm:w-64 md:w-80"
+      className="group block"
       data-cursor="photo"
       data-cursor-label={title}
     >
+      {/* Image — portrait 3:4 */}
       <div
         className="relative overflow-hidden aspect-[3/4]"
         style={{ viewTransitionName: seriesId ? `series-${seriesId}` : undefined }}
@@ -37,22 +37,24 @@ export function SeriesCard({ title, slug, year, photoCount, coverImage, seriesId
           src={resolveImageUrl(coverImage)}
           alt={title}
           fill
-          sizes="(max-width: 768px) 224px, 320px"
+          sizes="(max-width: 768px) 100vw, 50vw"
           placeholder="blur"
           blurDataURL={getBlurDataURL(coverImage?.asset?.metadata?.lqip)}
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
         />
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-dark/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-          <p className="font-sans text-[9px] tracking-extreme text-text-light uppercase">
-            {title}
-          </p>
+        {/* Count badge — top right, like GSProductions */}
+        <div className="absolute top-3 right-3 font-sans text-[8px] tracking-[0.18em] text-text-light/70 uppercase">
+          {photoCount} {photoCount === 1 ? 'IMAGE' : 'IMAGES'}
         </div>
       </div>
-      <div className="mt-3">
-        <p className="font-serif text-base text-text-dark">{title}</p>
-        <p className="font-sans text-[9px] tracking-extreme text-muted mt-1">
-          {year} · {photoCount} PHOTOS
+
+      {/* Metadata below image — minimal */}
+      <div className="pt-3 pb-8 border-b border-ink/[0.07]">
+        <p className="font-serif text-[1.05rem] text-ink group-hover:opacity-60 transition-opacity duration-300">
+          {title}
+        </p>
+        <p className="font-sans text-[9px] tracking-[0.2em] text-muted mt-1 uppercase">
+          {year}
         </p>
       </div>
     </Link>

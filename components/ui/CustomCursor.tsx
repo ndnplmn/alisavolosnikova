@@ -5,49 +5,36 @@ import { gsap } from 'gsap'
 type CursorState = 'default' | 'hover-photo' | 'hover-link'
 
 export function CustomCursor() {
-  const dotRef = useRef<HTMLDivElement>(null)
+  const ringRef  = useRef<HTMLDivElement>(null)
   const labelRef = useRef<HTMLSpanElement>(null)
-  const [isTouch, setIsTouch] = useState(true) // default true to avoid SSR flash
-  const [state, setState] = useState<CursorState>('default')
-  const [label, setLabel] = useState('')
+  const [isTouch, setIsTouch]   = useState(true)
+  const [state,   setState]     = useState<CursorState>('default')
+  const [label,   setLabel]     = useState('')
 
   useEffect(() => {
-    // Detect touch device
-    if (window.matchMedia('(hover: none)').matches) {
-      setIsTouch(true)
-      return
-    }
+    if (window.matchMedia('(hover: none)').matches) { setIsTouch(true); return }
     setIsTouch(false)
 
-    const dot = dotRef.current
-    if (!dot) return
+    const ring = ringRef.current
+    if (!ring) return
 
-    // Smooth cursor tracking
-    const xTo = gsap.quickTo(dot, 'x', { duration: 0.12, ease: 'power3.out' })
-    const yTo = gsap.quickTo(dot, 'y', { duration: 0.12, ease: 'power3.out' })
+    // Position tracking
+    const xTo = gsap.quickTo(ring, 'x', { duration: 0.10, ease: 'power3.out' })
+    const yTo = gsap.quickTo(ring, 'y', { duration: 0.10, ease: 'power3.out' })
 
-    const onMouseMove = (e: MouseEvent) => {
-      xTo(e.clientX)
-      yTo(e.clientY)
-    }
+    const onMouseMove = (e: MouseEvent) => { xTo(e.clientX); yTo(e.clientY) }
     window.addEventListener('mousemove', onMouseMove)
 
-    // Photo hover
+    // Hover handlers
     const onPhotoEnter = (e: Event) => {
       const el = e.currentTarget as HTMLElement
       setLabel(el.dataset.cursorLabel ?? '')
       setState('hover-photo')
     }
-    const onPhotoLeave = () => {
-      setState('default')
-      setLabel('')
-    }
+    const onPhotoLeave = () => { setState('default'); setLabel('') }
+    const onLinkEnter  = () => setState('hover-link')
+    const onLinkLeave  = () => setState('default')
 
-    // Link hover
-    const onLinkEnter = () => setState('hover-link')
-    const onLinkLeave = () => setState('default')
-
-    // Register targets (called once + on DOM mutations for dynamic content)
     const registerTargets = () => {
       document.querySelectorAll('[data-cursor="photo"]').forEach(el => {
         el.removeEventListener('mouseenter', onPhotoEnter)
@@ -64,8 +51,6 @@ export function CustomCursor() {
     }
 
     registerTargets()
-
-    // Re-register on DOM changes (new photos/links added after navigation)
     const observer = new MutationObserver(registerTargets)
     observer.observe(document.body, { childList: true, subtree: true })
 
@@ -75,41 +60,43 @@ export function CustomCursor() {
     }
   }, [])
 
-  // Size animation based on state
+  // Ring size transitions
   useEffect(() => {
-    const dot = dotRef.current
-    if (!dot) return
+    const ring = ringRef.current
+    if (!ring) return
 
     const sizes: Record<CursorState, number> = {
-      'default': 6,
-      'hover-link': 40,
-      'hover-photo': 64,
+      'default':     28,
+      'hover-link':  44,
+      'hover-photo': 80,
     }
-    const eases: Record<CursorState, string> = {
-      'default': 'power2.out',
-      'hover-link': 'power2.out',
-      'hover-photo': 'elastic.out(1, 0.5)',
+    const fills: Record<CursorState, string> = {
+      'default':     'transparent',
+      'hover-link':  'transparent',
+      'hover-photo': 'rgba(255,255,255,0.15)',
     }
 
-    gsap.to(dot, {
-      width: sizes[state],
-      height: sizes[state],
-      duration: state === 'hover-photo' ? 0.5 : 0.3,
-      ease: eases[state],
+    gsap.to(ring, {
+      width:           sizes[state],
+      height:          sizes[state],
+      backgroundColor: fills[state],
+      duration:        state === 'hover-photo' ? 0.45 : 0.25,
+      ease:            state === 'hover-photo' ? 'elastic.out(1,0.6)' : 'power2.out',
     })
   }, [state])
 
-  // Don't render on touch devices
   if (isTouch) return null
 
   return (
     <div
-      ref={dotRef}
+      ref={ringRef}
       aria-hidden="true"
-      className="fixed top-0 left-0 pointer-events-none z-[9999] rounded-full flex items-center justify-center mix-blend-difference bg-[#F5F2EE]"
+      className="fixed top-0 left-0 pointer-events-none z-[9999] rounded-full
+                 flex items-center justify-center mix-blend-difference"
       style={{
-        width: 6,
-        height: 6,
+        width:  28,
+        height: 28,
+        border: '1.5px solid #ffffff',
         transform: 'translate(-50%, -50%)',
         willChange: 'transform, width, height',
       }}
@@ -117,7 +104,8 @@ export function CustomCursor() {
       {state === 'hover-photo' && label && (
         <span
           ref={labelRef}
-          className="font-sans text-[7px] tracking-extreme text-dark uppercase whitespace-nowrap select-none"
+          className="font-sans text-[7px] tracking-[0.2em] text-white uppercase
+                     whitespace-nowrap select-none"
         >
           {label}
         </span>

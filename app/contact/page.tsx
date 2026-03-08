@@ -17,7 +17,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
   }
 
   return (
-    <div className="min-h-screen bg-dark text-text-light pt-20">
+    <div className="min-h-screen bg-dark text-text-light">
       <CornerUI topLeft="CONTACT" bottomLeft="Алиса Волосникова" bottomRight="© 2026" />
 
       <div className="max-w-screen-xl mx-auto px-8 py-20">

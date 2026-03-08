@@ -51,17 +51,18 @@ export function SeriesCounter({ stats = DEFAULT_STATS }: { stats?: Stat[] }) {
   return (
     <section
       ref={sectionRef}
-      className="flex justify-center gap-16 md:gap-24 py-28 px-8 bg-light"
+      className="flex justify-center gap-16 md:gap-32 py-28 px-8 bg-cream border-t border-ink/[0.07]"
     >
       {stats.map(({ value, label }) => (
         <div key={label} className="text-center">
           <p
-            className="font-serif text-6xl md:text-8xl text-text-dark leading-none"
+            className="font-serif text-7xl md:text-[7rem] text-ink leading-none"
             data-count-target={value}
           >
             0
           </p>
-          <p className="font-sans text-[9px] tracking-extreme text-muted mt-3">
+          <div className="w-6 h-px bg-ink/20 mx-auto my-3" />
+          <p className="font-sans text-[9px] tracking-[0.22em] text-muted uppercase">
             {label}
           </p>
         </div>

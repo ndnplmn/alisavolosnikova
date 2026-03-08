@@ -76,7 +76,7 @@ export default async function PrintsPage() {
   if (prints.length === 0) prints = PLACEHOLDER_PRINTS
 
   return (
-    <div className="min-h-screen bg-light text-text-dark pt-20">
+    <div className="min-h-screen bg-light text-text-dark">
       <CornerUI topLeft="PRINTS" bottomLeft="FINE ART PRINTS" bottomRight="LIMITED EDITIONS" />
 
       <div className="px-6 py-16">

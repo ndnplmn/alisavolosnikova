@@ -46,16 +46,16 @@ export function Statement({ text = '"She does not capture moments. She selects t
   return (
     <section
       ref={containerRef}
-      className="flex items-center justify-center min-h-screen bg-dark px-8 py-24"
+      className="flex items-center justify-center bg-dark px-8 py-32 md:py-48"
     >
-      <div className="max-w-3xl text-center">
+      <div className="max-w-4xl text-center">
         <p
           ref={textRef}
-          className="font-serif text-4xl md:text-6xl lg:text-7xl text-light leading-tight"
+          className="font-serif italic text-4xl md:text-6xl lg:text-[5.5rem] text-text-light leading-[1.05]"
         >
           {text}
         </p>
-        <div className="w-24 h-px bg-text-light/20 mx-auto mt-16" />
+        <div className="w-12 h-px bg-text-light/20 mx-auto mt-14" />
       </div>
     </section>
   )
