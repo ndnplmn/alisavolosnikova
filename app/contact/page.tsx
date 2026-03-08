@@ -2,6 +2,7 @@
 import { client } from '@/lib/sanity/client'
 import { CONTACT_QUERY } from '@/lib/sanity/queries'
 import { ContactForm } from '@/components/contact/ContactForm'
+import { CopyButton } from '@/components/contact/CopyButton'
 import { CornerUI } from '@/components/ui/CornerUI'
 
 export const revalidate = 3600
@@ -39,7 +40,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
             {data?.instagram && (
               <div className="text-right">
                 <p className="font-sans text-[9px] tracking-extreme text-muted mb-1">INSTAGRAM</p>
-                <a href={`https://instagram.com/${data.instagram}`} target="_blank" rel="noopener" className="font-sans text-sm text-text-light hover:opacity-70 transition-opacity" data-cursor="link">
+                <a href={`https://instagram.com/${data.instagram}`} target="_blank" rel="noopener noreferrer" className="font-sans text-sm text-text-light hover:opacity-70 transition-opacity" data-cursor="link">
                   @{data.instagram} →
                 </a>
               </div>
@@ -47,13 +48,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
             {data?.email && (
               <div className="text-right">
                 <p className="font-sans text-[9px] tracking-extreme text-muted mb-1">EMAIL</p>
-                <button
-                  onClick={() => { navigator.clipboard.writeText(data.email); }}
-                  className="font-sans text-sm text-text-light hover:opacity-70 transition-opacity"
-                  data-cursor="link"
-                >
-                  {data.email} →
-                </button>
+                <CopyButton email={data.email} />
               </div>
             )}
             {data?.location && (

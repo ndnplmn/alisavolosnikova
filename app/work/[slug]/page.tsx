@@ -1,9 +1,11 @@
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 import { client } from '@/lib/sanity/client'
 import { SERIES_BY_SLUG_QUERY, ALL_SERIES_QUERY } from '@/lib/sanity/queries'
 import { MasonryGrid } from '@/components/portfolio/MasonryGrid'
 import { NextSection } from '@/components/ui/NextSection'
 import { CornerUI } from '@/components/ui/CornerUI'
+import { getBlurDataURL } from '@/lib/sanity/image'
 
 export const revalidate = 3600
 
@@ -101,6 +103,24 @@ export default async function SeriesPage({ params }: PageProps) {
 
       {/* Series header */}
       <header className="px-6 pt-12 pb-8">
+        {/* Hero image — matches SeriesCard cover for view-transition morph */}
+        {series.photos && series.photos.length > 0 && (
+          <div
+            className="relative w-full max-w-2xl aspect-[3/2] overflow-hidden mb-8"
+            style={{ viewTransitionName: `series-${series._id}` }}
+          >
+            <Image
+              src={series.photos[0].image.asset.url}
+              alt={series.photos[0].altText ?? series.title}
+              fill
+              sizes="(max-width: 768px) 100vw, 672px"
+              placeholder="blur"
+              blurDataURL={getBlurDataURL(series.photos[0].image?.asset?.metadata?.lqip)}
+              className="object-cover"
+              priority
+            />
+          </div>
+        )}
         <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl">
           {series.title}
         </h1>

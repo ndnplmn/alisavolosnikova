@@ -115,6 +115,7 @@ export function SeriesGrid({ series }: SeriesGridProps) {
                   year={s.year}
                   photoCount={s.photoCount}
                   coverImage={s.coverImage}
+                  seriesId={s._id}
                 />
               </div>
             ))}

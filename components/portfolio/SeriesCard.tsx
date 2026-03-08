@@ -21,7 +21,7 @@ function resolveImageUrl(coverImage: SeriesCardProps['coverImage']): string {
   return urlFor(coverImage).width(640).url()
 }
 
-export function SeriesCard({ title, slug, year, photoCount, coverImage }: SeriesCardProps) {
+export function SeriesCard({ title, slug, year, photoCount, coverImage, seriesId }: SeriesCardProps & { seriesId?: string }) {
   return (
     <Link
       href={`/work/${slug}`}
@@ -29,7 +29,10 @@ export function SeriesCard({ title, slug, year, photoCount, coverImage }: Series
       data-cursor="photo"
       data-cursor-label={title}
     >
-      <div className="relative overflow-hidden aspect-[3/4]">
+      <div
+        className="relative overflow-hidden aspect-[3/4]"
+        style={{ viewTransitionName: seriesId ? `series-${seriesId}` : undefined }}
+      >
         <Image
           src={resolveImageUrl(coverImage)}
           alt={title}
