@@ -95,7 +95,7 @@ export function AboutContent({ data }: { data: any }) {
       {data.clients?.length > 0 && (
         <div className="flex justify-center px-8 py-12 border-t border-text-dark/10">
           <p className="font-sans text-xs text-muted">
-            {data.clients.join('  ·  ')}
+            {data.clients.join(' · ')}
           </p>
         </div>
       )}
