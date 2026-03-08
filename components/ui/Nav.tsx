@@ -77,23 +77,26 @@ export function Nav() {
 
       {/* Mobile: hamburger toggle — top-right */}
       <button
-        className="fixed top-6 right-6 z-50 md:hidden font-sans text-lg text-light leading-none pointer-events-auto"
-        onClick={() => setMobileOpen(o => !o)}
-        aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+        className="fixed top-6 right-6 z-50 md:hidden font-sans text-[22px] text-text-light leading-none pointer-events-auto"
+        onClick={() => setMobileOpen(true)}
+        aria-label="Open menu"
         aria-expanded={mobileOpen}
-      >
-        {mobileOpen ? '×' : '—'}
-      </button>
+      >—</button>
 
       {/* Mobile menu overlay */}
       {mobileOpen && (
-        <div className="fixed inset-0 bg-dark z-40 flex flex-col items-center justify-center gap-10 md:hidden">
+        <div className="fixed inset-0 bg-dark z-[60] flex flex-col items-center justify-center gap-8 md:hidden">
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="absolute top-6 right-6 font-sans text-[20px] text-text-light leading-none"
+            aria-label="Close menu"
+          >×</button>
           {NAV_ITEMS.map(({ label, href }) => (
             <Link
               key={href}
               href={href}
-              className={`font-serif text-4xl text-light no-underline transition-opacity ${isActive(href) ? 'opacity-100' : 'opacity-60'}`}
               onClick={() => setMobileOpen(false)}
+              className="font-serif text-4xl text-text-light hover:opacity-70 transition-opacity"
             >
               {label}
             </Link>

@@ -15,7 +15,7 @@ interface HeroProps {
 
 export function Hero({ imageUrl, imageAlt }: HeroProps) {
   return (
-    <section className="relative w-full h-screen overflow-hidden bg-dark">
+    <section className="relative w-full h-[70vh] md:h-screen overflow-hidden bg-dark">
       {/* WebGL canvas layer */}
       <HeroWebGL imageUrl={imageUrl} alt={imageAlt} />
 
