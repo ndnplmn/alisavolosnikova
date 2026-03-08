@@ -1,5 +1,6 @@
 import { client } from '@/lib/sanity/client'
 import { FEATURED_SERIES_QUERY } from '@/lib/sanity/queries'
+import { Hero } from '@/components/home/Hero'
 import { Statement } from '@/components/home/Statement'
 import { FeaturedWork } from '@/components/home/FeaturedWork'
 import { SeriesCounter } from '@/components/home/SeriesCounter'
@@ -26,18 +27,7 @@ export default async function HomePage() {
 
   return (
     <main>
-      {/* Hero — imported separately since it uses WebGL (dynamic import inside component) */}
-      {/* Hero component will be wired here once Task 10 completes */}
-      <section className="relative w-full h-screen overflow-hidden bg-dark flex items-end pb-8 px-6">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroImageUrl})`, filter: 'brightness(0.7)' }}
-          aria-hidden="true"
-        />
-        <div className="relative z-10 font-sans text-[10px] tracking-extreme text-light opacity-70">
-          PHOTOGRAPHER
-        </div>
-      </section>
+      <Hero imageUrl={heroImageUrl} imageAlt="Алиса Волосникова" />
 
       <Statement />
 
