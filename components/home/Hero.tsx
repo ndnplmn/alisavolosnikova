@@ -12,15 +12,15 @@ gsap.registerPlugin(ScrollTrigger)
 type Filter = 'ALL' | 'B&W' | 'COLOR'
 
 const PHOTOS = [
-  { src: '/images/foto-01.png', slug: 'oblique-light',     mode: 'dark'  as const, location: 'Moscow · 2024',            en: 'Oblique light on skin.\nSilence has texture.',              ru: 'Косой свет на коже.\nТишина имеет фактуру.' },
-  { src: '/images/foto-02.png', slug: 'between-breaths',   mode: 'dark'  as const, location: 'Saint Petersburg · 2024',  en: 'A pause between two breaths.\nNothing moves.',              ru: 'Пауза между двумя вдохами.\nНичто не движется.' },
-  { src: '/images/foto-03.png', slug: 'body-as-landscape', mode: 'light' as const, location: 'Tbilisi · 2023',           en: 'The body as landscape.\nShadow is its geography.',          ru: 'Тело как пейзаж.\nТень — его география.' },
-  { src: '/images/foto-04.png', slug: 'suspended-instant', mode: 'dark'  as const, location: 'Moscow · 2025',            en: 'A suspended instant.\nTime does not advance here.',         ru: 'Застывший миг.\nВремя здесь не движется.' },
-  { src: '/images/foto-05.png', slug: 'fragment-real',     mode: 'light' as const, location: 'Helsinki · 2024',          en: 'A fragment of the real.\nEverything else is noise.',        ru: 'Фрагмент реального.\nВсё остальное — шум.' },
-  { src: '/images/foto-06.png', slug: 'light-reveals',     mode: 'dark'  as const, location: 'Yerevan · 2023',           en: 'Light does not illuminate —\nit reveals what was already there.', ru: 'Свет не освещает —\nон открывает то, что уже было.' },
-  { src: '/images/foto-07.png', slug: 'active-stillness',  mode: 'light' as const, location: 'Moscow · 2025',            en: 'Active stillness.\nThe image breathes on its own.',         ru: 'Активная тишина.\nОбраз дышит сам по себе.' },
-  { src: '/images/foto-08.png', slug: 'between-form',      mode: 'dark'  as const, location: 'Riga · 2024',              en: 'Between form and its absence.\nA threshold zone.',          ru: 'Между формой и её отсутствием.\nПограничная зона.' },
-  { src: '/images/foto-09.png', slug: 'last-frame',        mode: 'light' as const, location: 'Saint Petersburg · 2025',  en: 'The last frame.\nThe visible dissolves.',                   ru: 'Последний кадр.\nВидимое растворяется.' },
+  { src: '/images/foto-01.png', slug: 'oblique-light',     position: 'center 30%',  mode: 'dark'  as const, location: 'Moscow · 2024',            en: 'Oblique light on skin.\nSilence has texture.',              ru: 'Косой свет на коже.\nТишина имеет фактуру.' },
+  { src: '/images/foto-02.png', slug: 'between-breaths',   position: 'center center', mode: 'dark'  as const, location: 'Saint Petersburg · 2024',  en: 'A pause between two breaths.\nNothing moves.',              ru: 'Пауза между двумя вдохами.\nНичто не движется.' },
+  { src: '/images/foto-03.png', slug: 'body-as-landscape', position: 'center 40%',  mode: 'light' as const, location: 'Tbilisi · 2023',           en: 'The body as landscape.\nShadow is its geography.',          ru: 'Тело как пейзаж.\nТень — его география.' },
+  { src: '/images/foto-04.png', slug: 'suspended-instant', position: 'center center', mode: 'dark'  as const, location: 'Moscow · 2025',            en: 'A suspended instant.\nTime does not advance here.',         ru: 'Застывший миг.\nВремя здесь не движется.' },
+  { src: '/images/foto-05.png', slug: 'fragment-real',     position: 'center 35%',  mode: 'light' as const, location: 'Helsinki · 2024',          en: 'A fragment of the real.\nEverything else is noise.',        ru: 'Фрагмент реального.\nВсё остальное — шум.' },
+  { src: '/images/foto-06.png', slug: 'light-reveals',     position: 'center center', mode: 'dark'  as const, location: 'Yerevan · 2023',           en: 'Light does not illuminate —\nit reveals what was already there.', ru: 'Свет не освещает —\nон открывает то, что уже было.' },
+  { src: '/images/foto-07.png', slug: 'active-stillness',  position: 'center 40%',  mode: 'light' as const, location: 'Moscow · 2025',            en: 'Active stillness.\nThe image breathes on its own.',         ru: 'Активная тишина.\nОбраз дышит сам по себе.' },
+  { src: '/images/foto-08.png', slug: 'between-form',      position: 'center center', mode: 'dark'  as const, location: 'Riga · 2024',              en: 'Between form and its absence.\nA threshold zone.',          ru: 'Между формой и её отсутствием.\nПограничная зона.' },
+  { src: '/images/foto-09.png', slug: 'last-frame',        position: 'center 30%',  mode: 'light' as const, location: 'Saint Petersburg · 2025',  en: 'The last frame.\nThe visible dissolves.',                   ru: 'Последний кадр.\nВидимое растворяется.' },
 ]
 
 const TOTAL = PHOTOS.length
@@ -143,7 +143,7 @@ export function Hero() {
       </div>
 
       {/* Photos — full width */}
-      {PHOTOS.map(({ src, en, ru, slug }, i) => (
+      {PHOTOS.map(({ src, en, ru, slug, position }, i) => (
         <div key={src} style={{ marginBottom: i < TOTAL - 1 ? '1px' : 0 }}>
 
           {/* Photo */}
@@ -166,7 +166,8 @@ export function Hero() {
                   alt={`Алиса Волосникова — ${String(i + 1).padStart(2, '0')}`}
                   fill
                   sizes="100vw"
-                  className="object-cover object-center"
+                  className="object-cover"
+                  style={{ objectPosition: position }}
                   priority={i === 0}
                 />
               </div>
@@ -205,7 +206,7 @@ export function Hero() {
         gridTemplateColumns: 'repeat(3, 1fr)',
         gap:                 '3px',
       }}>
-        {filteredPhotos.map(({ src, slug, location }, i) => (
+        {filteredPhotos.map(({ src, slug, location, position }, i) => (
           <TransitionLink
             key={src}
             href={`/work/${slug}`}
@@ -216,7 +217,8 @@ export function Hero() {
               alt={`Алиса Волосникова — ${String(i + 1).padStart(2, '0')}`}
               fill
               sizes="33vw"
-              className="object-cover object-center"
+              className="object-cover"
+              style={{ objectPosition: position }}
               priority={i < 3}
             />
             {/* location badge — bottom left */}
@@ -247,7 +249,7 @@ export function Hero() {
 
       {/* Scrolling photo column — LEFT */}
       <div style={{ flex: 1, overflow: 'hidden' }}>
-        {filteredPhotos.map(({ src, slug }, i) => (
+        {filteredPhotos.map(({ src, slug, position }, i) => (
           <TransitionLink
             key={src}
             href={`/work/${slug}`}
@@ -270,7 +272,8 @@ export function Hero() {
                   alt={`Алиса Волосникова — ${String(i + 1).padStart(2, '0')}`}
                   fill
                   sizes="70vw"
-                  className="object-cover object-center"
+                  className="object-cover"
+                  style={{ objectPosition: position }}
                   priority={i === 0}
                 />
               </div>
