@@ -5,13 +5,13 @@
 
 /* ─── Design tokens ──────────────────────────────────────────── */
 @theme {
-  --color-cream:      #F0EDE8;
-  --color-ink:        #111111;
+  --color-cream:      #EFEFEB;
+  --color-ink:        #0F0F0F;
   --color-dark:       #0A0A0A;
-  --color-light:      #F0EDE8;
-  --color-text-dark:  #111111;
-  --color-text-light: #E8E4DF;
-  --color-muted:      #888880;
+  --color-light:      #EFEFEB;
+  --color-text-dark:  #0F0F0F;
+  --color-text-light: #EFEFEB;
+  --color-muted:      #7A7A74;
   --tracking-extreme: 0.22em;
   --tracking-wide:    0.12em;
 }
@@ -22,13 +22,13 @@
 }
 
 :root {
-  --color-cream:      #F0EDE8;
-  --color-ink:        #111111;
+  --color-cream:      #EFEFEB;
+  --color-ink:        #0F0F0F;
   --color-dark:       #0A0A0A;
-  --color-light:      #F0EDE8;
-  --color-text-dark:  #111111;
-  --color-text-light: #E8E4DF;
-  --color-muted:      #888880;
+  --color-light:      #EFEFEB;
+  --color-text-dark:  #0F0F0F;
+  --color-text-light: #EFEFEB;
+  --color-muted:      #7A7A74;
   --nav-h:            48px;
 }
 
@@ -45,13 +45,47 @@ body {
   background-color: var(--color-cream);
   color: var(--color-ink);
   font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 300;
   margin: 0;
   padding: 0;
+}
+
+/* ─── Tipografía — metadatos ─────────────────────────────────── */
+/* Uso: location, contador, labels de UI */
+.meta {
+  font-family:    var(--font-sans), system-ui, sans-serif;
+  font-size:      7px;
+  font-weight:    300;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color:          var(--color-muted);
+}
+
+/* ─── Tipografía — descripción poética ──────────────────────── */
+/* Uso: textos de cada fotografía */
+.poetic {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size:   clamp(1rem, 1.2vw, 1.35rem);
+  font-weight: 300;
+  font-style:  italic;
+  line-height: 1.7;
+  color:       rgba(15,15,15,0.7);
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────── */
 .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
+
+::-webkit-scrollbar       { width: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 1px; }
+*                         { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.15) transparent; }
+
+/* ─── Selection ──────────────────────────────────────────────── */
+::selection { background: #0F0F0F; color: #EFEFEB; }
+
+/* ─── Focus ring ─────────────────────────────────────────────── */
+:focus-visible { outline: 1px solid rgba(0,0,0,0.4); outline-offset: 3px; }
 
 /* ─── Reduced motion ─────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
