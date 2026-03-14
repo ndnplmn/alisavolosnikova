@@ -16,7 +16,7 @@ interface SeriesCardProps {
 
 function resolveImageUrl(coverImage: SeriesCardProps['coverImage']): string {
   const rawUrl = coverImage?.asset?.url ?? ''
-  if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) return rawUrl
+  if (rawUrl) return rawUrl            // local /images/... or full https URL
   return urlFor(coverImage).width(900).url()
 }
 

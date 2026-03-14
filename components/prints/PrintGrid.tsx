@@ -78,7 +78,7 @@ export function PrintGrid({ prints }: { prints: any[] }) {
       <div className="flex flex-col items-center py-20 gap-6">
         <div className="w-px h-12 bg-text-dark/20" />
         <p className="font-sans text-[9px] tracking-extreme text-muted">BACK TO THE WORK</p>
-        <CTAButton href="/work">VIEW PORTFOLIO</CTAButton>
+        <CTAButton href="/">VIEW PORTFOLIO</CTAButton>
       </div>
     </div>
   )

@@ -57,7 +57,7 @@ export function ContactForm({ defaultPrintName }: Props) {
       <div className="text-center py-24">
         <p className="font-serif text-5xl mb-6">Thank you.</p>
         <p className="font-sans text-sm text-muted mb-12">Alisa will be in touch soon.</p>
-        <CTAButton href="/work">WHILE YOU WAIT — EXPLORE THE WORK</CTAButton>
+        <CTAButton href="/">WHILE YOU WAIT — EXPLORE THE WORK</CTAButton>
       </div>
     )
   }

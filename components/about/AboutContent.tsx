@@ -40,11 +40,9 @@ export function AboutContent({ data }: { data: any }) {
         {data.portrait && (
           <div className="relative md:w-[45%] h-96 md:h-auto md:min-h-[70vh]">
             <Image
-              src={urlFor(data.portrait).width(900).url()}
+              src={data.portrait?.asset?.url ?? urlFor(data.portrait).width(900).url()}
               alt="Алиса Волосникова"
               fill
-              placeholder="blur"
-              blurDataURL={getBlurDataURL(data.portrait?.asset?.metadata?.lqip)}
               className="object-cover"
             />
           </div>

@@ -42,7 +42,6 @@ export function CTAButton({ href, onClick, children, className = '', type = 'but
   const sharedProps = {
     onMouseEnter: onEnter,
     onMouseLeave: onLeave,
-    'data-cursor': 'link' as const,
     className: `inline-block ${className}`,
   }
 
@@ -55,7 +54,7 @@ export function CTAButton({ href, onClick, children, className = '', type = 'but
   }
 
   return (
-    <button type={type} onClick={onClick} {...sharedProps} style={{ background: 'none', border: 'none', padding: 0, cursor: 'none' }}>
+    <button type={type} onClick={onClick} {...sharedProps} style={{ background: 'none', border: 'none', padding: 0 }}>
       {inner}
     </button>
   )

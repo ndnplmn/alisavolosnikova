@@ -14,7 +14,8 @@ const cormorant = Cormorant_Garamond({
 })
 
 const inter = Inter({
-  subsets:  ['latin'],
+  subsets:  ['latin', 'cyrillic'],
+  weight:   ['400', '500'],
   variable: '--font-sans',
   display:  'swap',
 })
@@ -35,8 +36,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
       <body suppressHydrationWarning>
-        <Nav />
         <Providers>
+          <Nav />
           {/* All page content is pushed below the fixed nav */}
           <div style={{ paddingTop: 'var(--nav-h)' }}>
             {children}
