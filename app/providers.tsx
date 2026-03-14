@@ -1,6 +1,7 @@
 'use client'
 import { type ReactNode } from 'react'
 import { PageLoader } from '@/components/ui/PageLoader'
+import { FilmGrain } from '@/components/ui/FilmGrain'
 import { LenisProvider } from '@/components/ui/LenisProvider'
 import { LanguageButton } from '@/components/ui/LanguageButton'
 import { LanguageProvider } from '@/contexts/LanguageContext'
@@ -14,6 +15,7 @@ export function Providers({ children }: { children: ReactNode }) {
         <LanguageProvider>
           <ViewModeProvider>
             <PageLoader />
+            <FilmGrain />
             <LanguageButton />
             {children}
           </ViewModeProvider>
