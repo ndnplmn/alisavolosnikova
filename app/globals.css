@@ -72,6 +72,13 @@ body {
   color:       rgba(15,15,15,0.7);
 }
 
+/* ─── Container interior ─────────────────────────────────────── */
+.interior {
+  max-width: 480px;
+  margin:    0 auto;
+  padding:   128px 24px;
+}
+
 /* ─── Scrollbar ──────────────────────────────────────────────── */
 .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }

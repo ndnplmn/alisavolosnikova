@@ -20,10 +20,10 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
     <div className="min-h-screen bg-dark text-text-light">
       <CornerUI topLeft="CONTACT" bottomLeft="Алиса Волосникова" bottomRight="© 2026" />
 
-      <div className="max-w-screen-xl mx-auto px-8 py-20">
+      <div className="interior">
         {/* Opening statement */}
-        <div className="text-center mb-20">
-          <h1 className="font-serif text-5xl md:text-7xl mb-6">
+        <div className="mb-16">
+          <h1 className="font-serif text-4xl leading-tight mb-8">
             Every great image<br />begins with a conversation.
           </h1>
           <p className="font-sans text-[9px] tracking-extreme text-muted">
@@ -31,34 +31,34 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
           </p>
         </div>
 
-        {/* Form + Direct channels */}
-        <div className="flex flex-col md:flex-row gap-16">
-          <div className="md:w-[60%]">
-            <ContactForm defaultPrintName={print} />
-          </div>
-          <div className="md:w-[40%] flex flex-col items-end justify-start gap-8 pt-4">
+        {/* Form */}
+        <ContactForm defaultPrintName={print} />
+
+        {/* Direct channels */}
+        {(data?.instagram || data?.email || data?.location) && (
+          <div className="flex flex-col gap-8 mt-16 pt-16 border-t border-text-light/10">
             {data?.instagram && (
-              <div className="text-right">
-                <p className="font-sans text-[9px] tracking-extreme text-muted mb-1">INSTAGRAM</p>
-                <a href={`https://instagram.com/${data.instagram}`} target="_blank" rel="noopener noreferrer" className="font-sans text-sm text-text-light hover:opacity-70 transition-opacity" data-cursor="link">
+              <div>
+                <p className="font-sans text-[9px] tracking-extreme text-muted mb-2">INSTAGRAM</p>
+                <a href={`https://instagram.com/${data.instagram}`} target="_blank" rel="noopener noreferrer" className="font-sans text-sm text-text-light hover:opacity-70 transition-opacity">
                   @{data.instagram} →
                 </a>
               </div>
             )}
             {data?.email && (
-              <div className="text-right">
-                <p className="font-sans text-[9px] tracking-extreme text-muted mb-1">EMAIL</p>
+              <div>
+                <p className="font-sans text-[9px] tracking-extreme text-muted mb-2">EMAIL</p>
                 <CopyButton email={data.email} />
               </div>
             )}
             {data?.location && (
-              <div className="text-right">
-                <p className="font-sans text-[9px] tracking-extreme text-muted mb-1">LOCATION</p>
+              <div>
+                <p className="font-sans text-[9px] tracking-extreme text-muted mb-2">LOCATION</p>
                 <p className="font-sans text-sm">{data.location}</p>
               </div>
             )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

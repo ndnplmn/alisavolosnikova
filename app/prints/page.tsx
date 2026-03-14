@@ -79,14 +79,14 @@ export default async function PrintsPage() {
     <div className="min-h-screen bg-light text-text-dark">
       <CornerUI topLeft="PRINTS" bottomLeft="FINE ART PRINTS" bottomRight="LIMITED EDITIONS" />
 
-      <div className="px-6 py-16">
-        <p className="font-sans text-[9px] tracking-extreme text-muted mb-6">
+      <div className="interior" style={{ paddingBottom: '32px' }}>
+        <p className="font-sans text-[9px] tracking-extreme text-muted mb-8">
           FINE ART PRINTS · LIMITED EDITIONS · ARCHIVAL QUALITY
         </p>
-        <p className="font-serif text-2xl max-w-lg">
+        <p className="font-serif text-2xl leading-relaxed mb-8">
           Each print is produced on archival paper, signed and numbered by Alisa.
         </p>
-        <div className="h-px w-full bg-text-dark/10 mt-8" />
+        <div className="h-px w-full bg-text-dark/10" />
       </div>
 
       <PrintGrid prints={prints} />

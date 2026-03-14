@@ -63,8 +63,8 @@ export function AboutContent({ data }: { data: any }) {
 
       {/* Pull quote */}
       {data.pullQuote && (
-        <div className="flex justify-center px-8 py-24">
-          <p ref={quoteRef} className="font-serif text-3xl md:text-5xl text-center max-w-2xl">
+        <div className="interior">
+          <p ref={quoteRef} className="font-serif text-3xl leading-relaxed">
             &ldquo;{data.pullQuote}&rdquo;
           </p>
         </div>
@@ -72,35 +72,37 @@ export function AboutContent({ data }: { data: any }) {
 
       {/* Practice table */}
       {data.practice && (
-        <div className="flex flex-wrap justify-center gap-16 px-8 py-16 border-t border-text-dark/10">
-          {[
-            { label: 'VISION', items: data.practice.vision },
-            { label: 'PROCESS', items: data.practice.process },
-            { label: 'MEDIUM', items: data.practice.medium },
-          ].map(({ label, items }) => items?.length > 0 && (
-            <div key={label}>
-              <p className="font-sans text-[9px] tracking-extreme text-muted mb-3">{label}</p>
-              <div className="h-px w-full bg-text-dark/10 mb-3" />
-              {items.map((item: string) => (
-                <p key={item} className="font-sans text-sm text-text-dark py-1">{item}</p>
-              ))}
-            </div>
-          ))}
+        <div className="interior border-t border-text-dark/10" style={{ paddingTop: '64px', paddingBottom: '64px' }}>
+          <div className="flex flex-col gap-8">
+            {[
+              { label: 'VISION', items: data.practice.vision },
+              { label: 'PROCESS', items: data.practice.process },
+              { label: 'MEDIUM', items: data.practice.medium },
+            ].map(({ label, items }) => items?.length > 0 && (
+              <div key={label}>
+                <p className="font-sans text-[9px] tracking-extreme text-muted mb-4">{label}</p>
+                <div className="h-px w-full bg-text-dark/10 mb-4" />
+                {items.map((item: string) => (
+                  <p key={item} className="font-sans text-sm text-text-dark py-2">{item}</p>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
       {/* Clients */}
       {data.clients?.length > 0 && (
-        <div className="flex justify-center px-8 py-12 border-t border-text-dark/10">
-          <p className="font-sans text-xs text-muted">
+        <div className="interior border-t border-text-dark/10" style={{ paddingTop: '32px', paddingBottom: '32px' }}>
+          <p className="font-sans text-[9px] tracking-extreme text-muted">
             {data.clients.join(' · ')}
           </p>
         </div>
       )}
 
       {/* CTA to contact */}
-      <div className="flex flex-col items-center py-24 gap-8">
-        <p className="font-serif text-4xl md:text-6xl text-center px-8">
+      <div className="interior" style={{ paddingTop: '64px', paddingBottom: '128px' }}>
+        <p className="font-serif text-4xl leading-tight mb-8">
           Want to work<br />together?
         </p>
         <CTAButton href="/contact">GET IN TOUCH</CTAButton>
