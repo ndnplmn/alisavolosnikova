@@ -1,9 +1,11 @@
 'use client'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { TransitionLink } from '@/components/ui/PageTransition'
+import { getLenis } from '@/hooks/useLenis'
 import { useLang } from '@/contexts/LanguageContext'
 import { useViewMode } from '@/contexts/ViewModeContext'
 
@@ -28,8 +30,9 @@ const TOTAL = PHOTOS.length
 export function Hero() {
   const { lang, langRef } = useLang()
   const { viewMode } = useViewMode()
-  const [isMobile, setIsMobile] = useState(false)
-  const [filter, setFilter]     = useState<Filter>('ALL')
+  const [isMobile, setIsMobile]                     = useState(false)
+  const [filter, setFilter]                         = useState<Filter>('ALL')
+  const [activeTransitionSlug, setActiveTransitionSlug] = useState<string | null>(null)
 
   const filteredPhotos = filter === 'ALL' ? PHOTOS
     : PHOTOS.filter(p => filter === 'B&W' ? p.mode === 'dark' : p.mode === 'light')
@@ -39,7 +42,6 @@ export function Hero() {
   const descRef      = useRef<HTMLParagraphElement>(null)
   const mDescRefs    = useRef<HTMLParagraphElement[]>([])
   const photoRefs    = useRef<HTMLDivElement[]>([])
-  const innerRefs    = useRef<HTMLDivElement[]>([])
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
@@ -51,7 +53,16 @@ export function Hero() {
   useEffect(() => {
     // Trim stale refs from previous filter/viewMode to avoid creating triggers on unmounted elements
     photoRefs.current.length = filteredPhotos.length
-    innerRefs.current.length = filteredPhotos.length
+
+    // Debounce guard: ignore snap calls within 1s of the last one to prevent
+    // recursive snapping when Lenis scrollTo triggers new ScrollTrigger events
+    let lastSnapAt = 0
+    const snapTo = (el: HTMLElement) => {
+      const now = Date.now()
+      if (now - lastSnapAt < 1000) return
+      lastSnapAt = now
+      getLenis()?.scrollTo(el, { offset: -48, duration: 1.1 })
+    }
 
     photoRefs.current.forEach((el, i) => {
       if (!el) return
@@ -64,9 +75,18 @@ export function Hero() {
           onEnter:     () => updatePanel(i),
           onEnterBack: () => updatePanel(i),
         })
+
+        // Snap: when a photo crosses 38% of the viewport, Lenis smoothly
+        // scrolls to align it with the nav bottom — full-screen frame feel
+        ScrollTrigger.create({
+          trigger: el,
+          start: 'top 38%',
+          onEnter:     () => snapTo(el),
+          onEnterBack: () => snapTo(el),
+        })
       }
 
-      // Mobile: fade description in when photo enters viewport
+      // Mobile: fade description in on scroll
       if (isMobile) {
         const mDesc = mDescRefs.current[i]
         if (mDesc) {
@@ -98,7 +118,7 @@ export function Hero() {
     gsap.to(targets, {
       opacity: 0, y: 6, duration: 0.18, ease: 'power2.in',
       onComplete: () => {
-        counter.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0')
+        counter.textContent = String(i + 1).padStart(2, '0')
         desc.innerHTML = filteredPhotos[i][langRef.current].replace('\n', '<br/>')
         if (location) location.textContent = filteredPhotos[i].location
         gsap.fromTo(targets,
@@ -111,7 +131,7 @@ export function Hero() {
 
   const mono: React.CSSProperties = {
     fontFamily: 'var(--font-sans), system-ui, sans-serif',
-    color:      'rgba(17,17,17,0.35)',
+    color:      'rgba(10,10,10,0.35)',
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -134,7 +154,7 @@ export function Hero() {
             fontFamily:         'var(--font-sans)',
             fontSize:           '9px',
             letterSpacing:      '0.2em',
-            color:              'rgba(17,17,17,0.3)',
+            color:              'rgba(10,10,10,0.3)',
             fontVariantNumeric: 'tabular-nums',
           }}
         >
@@ -147,30 +167,29 @@ export function Hero() {
         <div key={src} style={{ marginBottom: i < TOTAL - 1 ? '1px' : 0 }}>
 
           {/* Photo */}
-          <TransitionLink href={`/work/${slug}`} style={{ display: 'block' }}>
+          <TransitionLink
+            href={`/work/${slug}`}
+            style={{ display: 'block' }}
+            onClick={() => { flushSync(() => setActiveTransitionSlug(slug)) }}
+          >
             <div
               ref={el => { if (el) photoRefs.current[i] = el }}
               style={{
-                position: 'relative',
-                height:   '82svh',
-                overflow: 'hidden',
-                clipPath: 'inset(100% 0 0 0)',
+                position:           'relative',
+                height:             '82svh',
+                overflow:           'hidden',
+                viewTransitionName: activeTransitionSlug === slug ? `photo-${slug}` : undefined,
               }}
             >
-              <div
-                ref={el => { if (el) innerRefs.current[i] = el }}
-                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-              >
-                <Image
-                  src={src}
-                  alt={`Алиса Волосникова — ${String(i + 1).padStart(2, '0')}`}
-                  fill
-                  sizes="100vw"
-                  className="object-cover"
-                  style={{ objectPosition: position }}
-                  priority={i === 0}
-                />
-              </div>
+              <Image
+                src={src}
+                alt={`Алиса Волосникова — ${String(i + 1).padStart(2, '0')}`}
+                fill
+                sizes="100vw"
+                className="object-cover"
+                style={{ objectPosition: position }}
+                priority={i === 0}
+              />
             </div>
           </TransitionLink>
 
@@ -182,7 +201,7 @@ export function Hero() {
               fontStyle:   'italic',
               fontSize:    'clamp(0.85rem, 3.5vw, 1rem)',
               lineHeight:  1.6,
-              color:       'rgba(17,17,17,0.5)',
+              color:       'rgba(10,10,10,0.5)',
               padding:     '1.25rem 1.25rem 1.75rem',
               margin:      0,
               opacity:     0,
@@ -197,49 +216,74 @@ export function Hero() {
   )
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // DESKTOP — GRID LAYOUT (thumbnail grid, 3 columns)
+  // DESKTOP — GRID LAYOUT (asymmetric editorial grid, 5 columns)
+  // Row pattern: [3,2], [2,3], [3,2], [2,3] … last lone photo → span 5
   // ─────────────────────────────────────────────────────────────────────────────
-  if (viewMode === 'GRID') return (
-    <div style={{ padding: '2rem 2.5rem 6rem' }}>
-      <div style={{
-        display:             'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap:                 '3px',
-      }}>
-        {filteredPhotos.map(({ src, slug, location, position }, i) => (
-          <TransitionLink
-            key={src}
-            href={`/work/${slug}`}
-            style={{ position: 'relative', aspectRatio: '3/4', overflow: 'hidden', display: 'block' }}
-          >
-            <Image
-              src={src}
-              alt={`Алиса Волосникова — ${String(i + 1).padStart(2, '0')}`}
-              fill
-              sizes="33vw"
-              className="object-cover"
-              style={{ objectPosition: position }}
-              priority={i < 3}
-            />
-            {/* location badge — bottom left */}
-            <span style={{
-              position:      'absolute',
-              bottom:        '0.75rem',
-              left:          '0.75rem',
-              fontFamily:    'var(--font-sans)',
-              fontSize:      '8px',
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color:         'rgba(232,228,223,0.7)',
-            }}>
-              {location}
-            </span>
-          </TransitionLink>
-        ))}
-      </div>
+  if (viewMode === 'GRID') {
+    const getSpan = (i: number, total: number): number => {
+      const isLastAlone = total % 2 !== 0 && i === total - 1
+      if (isLastAlone) return 5
+      const rowIndex = Math.floor(i / 2)          // which row pair
+      const posInRow = i % 2                       // 0 = left, 1 = right
+      const isEvenRow = rowIndex % 2 === 0
+      if (isEvenRow) return posInRow === 0 ? 3 : 2 // [wide, narrow]
+      else           return posInRow === 0 ? 2 : 3  // [narrow, wide]
+    }
 
-    </div>
-  )
+    return (
+      <div style={{ padding: '2rem 2.5rem 6rem' }}>
+        <div style={{
+          display:             'grid',
+          gridTemplateColumns: 'repeat(5, 1fr)',
+          gap:                 '3px',
+          alignItems:          'start',
+        }}>
+          {filteredPhotos.map(({ src, slug, location, position }, i) => {
+            const span  = getSpan(i, filteredPhotos.length)
+            const isWide = span >= 4
+            const sizes = isWide ? '80vw' : span === 3 ? '60vw' : '40vw'
+            return (
+              <TransitionLink
+                key={src}
+                href={`/work/${slug}`}
+                style={{
+                  position:           'relative',
+                  aspectRatio:        isWide ? '16/9' : '3/4',
+                  overflow:           'hidden',
+                  display:            'block',
+                  gridColumn:         `span ${span}`,
+                  viewTransitionName: activeTransitionSlug === slug ? `photo-${slug}` : undefined,
+                }}
+                onClick={() => { flushSync(() => setActiveTransitionSlug(slug)) }}
+              >
+                <Image
+                  src={src}
+                  alt={`Алиса Волосникова — ${String(i + 1).padStart(2, '0')}`}
+                  fill
+                  sizes={sizes}
+                  className="object-cover"
+                  style={{ objectPosition: position }}
+                  priority={i < 4}
+                />
+                <span style={{
+                  position:      'absolute',
+                  bottom:        '0.75rem',
+                  left:          '0.75rem',
+                  fontFamily:    'var(--font-sans)',
+                  fontSize:      '8px',
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color:         'rgba(245,245,245,0.7)',
+                }}>
+                  {location}
+                </span>
+              </TransitionLink>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
 
   // ─────────────────────────────────────────────────────────────────────────────
   // DESKTOP — LIST LAYOUT (photos left + sticky panel right) — default
@@ -254,29 +298,26 @@ export function Hero() {
             key={src}
             href={`/work/${slug}`}
             style={{ display: 'block', marginBottom: i < filteredPhotos.length - 1 ? '5px' : 0 }}
+            onClick={() => { flushSync(() => setActiveTransitionSlug(slug)) }}
           >
             <div
               ref={el => { if (el) photoRefs.current[i] = el }}
               style={{
-                position: 'relative',
-                height:   '100vh',
-                overflow: 'hidden',
+                position:           'relative',
+                height:             '100vh',
+                overflow:           'hidden',
+                viewTransitionName: activeTransitionSlug === slug ? `photo-${slug}` : undefined,
               }}
             >
-              <div
-                ref={el => { if (el) innerRefs.current[i] = el }}
-                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-              >
-                <Image
-                  src={src}
-                  alt={`Алиса Волосникова — ${String(i + 1).padStart(2, '0')}`}
-                  fill
-                  sizes="70vw"
-                  className="object-cover"
-                  style={{ objectPosition: position }}
-                  priority={i === 0}
-                />
-              </div>
+              <Image
+                src={src}
+                alt={`Алиса Волосникова — ${String(i + 1).padStart(2, '0')}`}
+                fill
+                sizes="70vw"
+                className="object-cover"
+                style={{ objectPosition: position }}
+                priority={i === 0}
+              />
             </div>
           </TransitionLink>
         ))}
@@ -296,6 +337,7 @@ export function Hero() {
         justifyContent: 'space-between',
         padding:        '2.5rem',
       }}>
+
         {/* Filter buttons — top */}
         <div style={{ display: 'flex', gap: '1.25rem' }}>
           {(['ALL', 'B&W', 'COLOR'] as Filter[]).map(f => (
@@ -310,7 +352,7 @@ export function Hero() {
                 border:        'none',
                 padding:       0,
                 cursor:        'pointer',
-                color:         'rgba(17,17,17,1)',
+                color:         '#0A0A0A',
                 opacity:       filter === f ? 1 : 0.3,
                 transition:    'opacity 0.2s',
               }}
@@ -327,24 +369,41 @@ export function Hero() {
             fontStyle:  'italic',
             fontSize:   'clamp(0.95rem, 1.15vw, 1.25rem)',
             lineHeight: 1.65,
-            color:      'rgba(17,17,17,0.6)',
+            color:      'rgba(10,10,10,0.6)',
             maxWidth:   '20ch',
             margin:     0,
           }}
           dangerouslySetInnerHTML={{ __html: (filteredPhotos[0] ?? PHOTOS[0])[lang].replace('\n', '<br/>') }}
         />
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {/* Location — bottom */}
-          <p ref={locationRef} style={{ ...mono, fontSize: '8px', letterSpacing: '0.28em', textTransform: 'uppercase' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {/* Giant numeral — editorial watermark */}
+          <div style={{ position: 'relative', lineHeight: 1 }}>
+            <span
+              ref={counterRef}
+              style={{
+                display:            'block',
+                fontFamily:         'var(--font-serif), Georgia, serif',
+                fontStyle:          'italic',
+                fontWeight:         300,
+                fontSize:           'clamp(5rem, 8vw, 9rem)',
+                letterSpacing:      '-0.03em',
+                lineHeight:         0.85,
+                color:              'rgba(10,10,10,0.1)',
+                fontVariantNumeric: 'tabular-nums',
+                userSelect:         'none',
+              }}
+            >
+              01
+            </span>
+            <span style={{ ...mono, fontSize: '8px', letterSpacing: '0.22em' }}>
+              / {String(filteredPhotos.length).padStart(2, '0')}
+            </span>
+          </div>
+          {/* Location — below counter */}
+          <p ref={locationRef} style={{ ...mono, fontSize: '8px', letterSpacing: '0.28em', textTransform: 'uppercase', marginTop: '0.5rem' }}>
             {filteredPhotos[0]?.location ?? PHOTOS[0].location}
           </p>
-          <span
-            ref={counterRef}
-            style={{ ...mono, fontSize: '9px', letterSpacing: '0.2em', color: 'rgba(17,17,17,0.2)', fontVariantNumeric: 'tabular-nums' }}
-          >
-            01 / {String(filteredPhotos.length).padStart(2, '0')}
-          </span>
         </div>
       </div>
 

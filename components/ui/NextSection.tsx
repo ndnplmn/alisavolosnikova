@@ -12,33 +12,60 @@ interface NextSectionProps {
   }
 }
 
+// Full-viewport dark closing panel — the next series teases itself as background
 export function NextSection({ label, href, title, coverImage }: NextSectionProps) {
+  const lqip = coverImage?.asset?.metadata?.lqip
+
   return (
-    <div className="flex flex-col items-center py-24 gap-6">
-      <div className="w-px h-14 bg-current opacity-20" />
-      <p className="font-sans text-[9px] tracking-extreme opacity-40">{label}</p>
-      <Link
-        href={href}
-        data-cursor="link"
-        className="group flex flex-col items-center gap-5 no-underline"
-      >
-        <p className="font-serif text-3xl md:text-5xl text-center group-hover:opacity-70 transition-opacity duration-300">
-          {title}
-        </p>
+    <Link
+      href={href}
+      data-cursor="link"
+      className="group relative flex items-center justify-center w-full overflow-hidden no-underline"
+      style={{ height: '100vh' }}
+    >
+      {/* Background — cover image at low opacity, darkened */}
+      <div className="absolute inset-0 bg-dark">
         {coverImage?.asset?.url && (
-          <div className="relative w-40 overflow-hidden">
+          <>
             <Image
-              src={urlFor(coverImage).width(320).url()}
+              src={urlFor(coverImage).width(1600).url()}
               alt={title}
-              width={320}
-              height={420}
-              placeholder="blur"
-              blurDataURL={getBlurDataURL(coverImage.asset.metadata?.lqip)}
-              className="w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+              fill
+              sizes="100vw"
+              className="object-cover opacity-30 transition-opacity duration-700 group-hover:opacity-50"
+              {...(lqip ? { placeholder: 'blur', blurDataURL: getBlurDataURL(lqip) } : {})}
             />
-          </div>
+            {/* Gradient vignette so title reads cleanly */}
+            <div className="absolute inset-0 bg-gradient-to-t from-dark/80 via-dark/30 to-dark/60" />
+          </>
         )}
-      </Link>
-    </div>
+      </div>
+
+      {/* Content — centered */}
+      <div className="relative z-10 flex flex-col items-center gap-5 text-center px-6">
+        <p className="font-sans text-text-light/35" style={{ fontSize: '9px', letterSpacing: '0.22em' }}>
+          {label}
+        </p>
+
+        <h2
+          className="font-serif italic text-text-light transition-opacity duration-300 group-hover:opacity-75"
+          style={{
+            fontSize: 'clamp(3rem, 9vw, 11rem)',
+            fontWeight: 300,
+            lineHeight: 0.92,
+            letterSpacing: '-0.025em',
+          }}
+        >
+          {title}
+        </h2>
+
+        <p
+          className="font-sans text-text-light/35 mt-2 transition-opacity duration-300 group-hover:text-text-light/60"
+          style={{ fontSize: '9px', letterSpacing: '0.22em' }}
+        >
+          →
+        </p>
+      </div>
+    </Link>
   )
 }

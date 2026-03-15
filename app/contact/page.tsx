@@ -3,8 +3,6 @@ import { client } from '@/lib/sanity/client'
 import { CONTACT_QUERY } from '@/lib/sanity/queries'
 import { ContactForm } from '@/components/contact/ContactForm'
 import { CopyButton } from '@/components/contact/CopyButton'
-import { CornerUI } from '@/components/ui/CornerUI'
-
 export const revalidate = 3600
 
 export default async function ContactPage({ searchParams }: { searchParams: Promise<{ print?: string }> }) {
@@ -17,9 +15,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
   }
 
   return (
-    <div className="min-h-screen bg-dark text-text-light">
-      <CornerUI topLeft="CONTACT" bottomLeft="Алиса Волосникова" bottomRight="© 2026" />
-
+    <div className="min-h-screen bg-light text-text-dark">
       <div className="interior">
         {/* Opening statement */}
         <div className="mb-16">
@@ -36,11 +32,11 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
 
         {/* Direct channels */}
         {(data?.instagram || data?.email || data?.location) && (
-          <div className="flex flex-col gap-8 mt-16 pt-16 border-t border-text-light/10">
+          <div className="flex flex-col gap-8 mt-16 pt-16 border-t border-text-dark/10">
             {data?.instagram && (
               <div>
                 <p className="font-sans text-[9px] tracking-extreme text-muted mb-2">INSTAGRAM</p>
-                <a href={`https://instagram.com/${data.instagram}`} target="_blank" rel="noopener noreferrer" className="font-sans text-sm text-text-light hover:opacity-70 transition-opacity">
+                <a href={`https://instagram.com/${data.instagram}`} target="_blank" rel="noopener noreferrer" className="font-sans text-sm text-text-dark hover:opacity-70 transition-opacity">
                   @{data.instagram} →
                 </a>
               </div>

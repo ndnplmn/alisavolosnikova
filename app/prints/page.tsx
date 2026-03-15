@@ -2,8 +2,6 @@
 import { client } from '@/lib/sanity/client'
 import { ALL_PRINTS_QUERY } from '@/lib/sanity/queries'
 import { PrintGrid } from '@/components/prints/PrintGrid'
-import { CornerUI } from '@/components/ui/CornerUI'
-
 export const revalidate = 3600
 
 const PLACEHOLDER_PRINTS = [
@@ -77,8 +75,6 @@ export default async function PrintsPage() {
 
   return (
     <div className="min-h-screen bg-light text-text-dark">
-      <CornerUI topLeft="PRINTS" bottomLeft="FINE ART PRINTS" bottomRight="LIMITED EDITIONS" />
-
       <div className="interior" style={{ paddingBottom: '32px' }}>
         <p className="font-sans text-[9px] tracking-extreme text-muted mb-8">
           FINE ART PRINTS · LIMITED EDITIONS · ARCHIVAL QUALITY

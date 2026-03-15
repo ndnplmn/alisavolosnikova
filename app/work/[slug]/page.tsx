@@ -1,10 +1,10 @@
-import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import { client } from '@/lib/sanity/client'
 import { SERIES_BY_SLUG_QUERY, ALL_SERIES_QUERY } from '@/lib/sanity/queries'
-import { MasonryGrid } from '@/components/portfolio/MasonryGrid'
+import { SeriesGallery } from '@/components/portfolio/SeriesGallery'
+import { SeriesIntro } from '@/components/portfolio/SeriesIntro'
+import { HeroTitleReveal } from '@/components/portfolio/HeroTitleReveal'
 import { NextSection } from '@/components/ui/NextSection'
-import { CornerUI } from '@/components/ui/CornerUI'
 import { getBlurDataURL } from '@/lib/sanity/image'
 
 export const revalidate = 3600
@@ -55,7 +55,6 @@ export default async function SeriesPage({ params }: PageProps) {
       title: slug.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
       slug,
       year: 2024,
-      mode: 'dark',
       description: 'A series by Алиса Волосникова.',
       photos: [
         {
@@ -86,57 +85,57 @@ export default async function SeriesPage({ params }: PageProps) {
     }
   }
 
-  const bgClass = series.mode === 'dark' ? 'bg-dark text-text-light' : 'bg-light text-text-dark'
-
   // Find next series
   const currentIdx = allSeries.findIndex((s: any) => s.slug === slug)
   const nextSeries = allSeries.length > 0
     ? allSeries[(currentIdx + 1) % allSeries.length]
     : null
 
+  const heroPhoto = series.photos?.[0]
+  const galleryPhotos = series.photos?.slice(1) ?? []
+  const lqip = heroPhoto?.image?.asset?.metadata?.lqip
+
   return (
-    <div className={`min-h-screen ${bgClass} pt-16`}>
-      <CornerUI
-        topLeft={series.title}
-        bottomLeft={`${series.year} · ${series.photos?.length ?? 0} PHOTOS`}
-      />
+    <div className="min-h-screen bg-light text-text-dark">
 
-      {/* Series header */}
-      <header className="px-6 pt-12 pb-8">
-        {/* Hero image — matches SeriesCard cover for view-transition morph */}
-        {series.photos && series.photos.length > 0 && (
-          <div
-            className="relative w-full max-w-2xl aspect-[3/2] overflow-hidden mb-8"
-            style={{ viewTransitionName: `series-${series._id}` }}
-          >
-            <Image
-              src={series.photos[0].image.asset.url}
-              alt={series.photos[0].altText ?? series.title}
-              fill
-              sizes="(max-width: 768px) 100vw, 672px"
-              placeholder="blur"
-              blurDataURL={getBlurDataURL(series.photos[0].image?.asset?.metadata?.lqip)}
-              className="object-cover"
-              priority
-            />
-          </div>
-        )}
-        <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl">
-          {series.title}
-        </h1>
-        {series.description && (
-          <p className="font-sans text-sm text-muted mt-4 max-w-md leading-relaxed">
-            {series.description}
-          </p>
-        )}
-      </header>
+      {/* ── Zone 1: Hero — full-bleed 100vh, morphs via View Transition ──────── */}
+      {heroPhoto && (
+        <div
+          className="relative w-full overflow-hidden"
+          style={{ height: '100vh', viewTransitionName: `photo-${slug}` }}
+        >
+          <Image
+            src={heroPhoto.image.asset.url}
+            alt={heroPhoto.altText ?? series.title}
+            fill
+            sizes="100vw"
+            className="object-cover"
+            priority
+            {...(lqip ? { placeholder: 'blur', blurDataURL: getBlurDataURL(lqip) } : {})}
+          />
+          {/* Gradient so title text reads over any image */}
+          <div className="absolute inset-0 bg-gradient-to-t from-dark/60 via-transparent to-transparent" />
 
-      {/* Masonry photo grid */}
-      {series.photos && series.photos.length > 0 && (
-        <MasonryGrid photos={series.photos} />
+          {/* Animated title overlay */}
+          <HeroTitleReveal
+            title={series.title}
+            year={series.year}
+            photoCount={series.photos?.length ?? 0}
+          />
+        </div>
       )}
 
-      {/* Next series transition */}
+      {/* ── Zone 2: Editorial intro — description as large italic pull ───────── */}
+      {series.description && (
+        <SeriesIntro description={series.description} />
+      )}
+
+      {/* ── Zone 3: Gallery — FullBleed / Split / FilmStrip sequence ─────────── */}
+      {galleryPhotos.length > 0 && (
+        <SeriesGallery photos={galleryPhotos} />
+      )}
+
+      {/* ── Zone 4: Next series — full-viewport dark cinematic panel ─────────── */}
       {nextSeries && (
         <NextSection
           label="NEXT SERIES"

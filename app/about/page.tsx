@@ -2,8 +2,6 @@
 import { client } from '@/lib/sanity/client'
 import { ABOUT_QUERY } from '@/lib/sanity/queries'
 import { AboutContent } from '@/components/about/AboutContent'
-import { CornerUI } from '@/components/ui/CornerUI'
-
 export const revalidate = 3600
 
 const PLACEHOLDER_DATA = {
@@ -26,10 +24,5 @@ export default async function AboutPage() {
   } catch {
     // Sanity not configured yet
   }
-  return (
-    <>
-      <CornerUI topLeft="ABOUT" bottomLeft="PHOTOGRAPHER" bottomRight="MOSCOW · 2026" />
-      <AboutContent data={data ?? PLACEHOLDER_DATA} />
-    </>
-  )
+  return <AboutContent data={data ?? PLACEHOLDER_DATA} />
 }
