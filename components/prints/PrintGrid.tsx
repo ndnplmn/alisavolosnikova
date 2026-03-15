@@ -2,7 +2,6 @@
 'use client'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { urlFor, getBlurDataURL } from '@/lib/sanity/image'
@@ -334,14 +333,14 @@ function PrintCard({
                   SOLD OUT
                 </span>
               ) : (
-                <Link
+                <TransitionLink
                   href={contactUrl}
                   data-cursor="link"
                   className="font-sans text-[9px] tracking-extreme text-text-dark
                              transition-opacity duration-300 hover:opacity-45"
                 >
                   INQUIRE ABOUT THIS EDITION →
-                </Link>
+                </TransitionLink>
               )}
             </div>
           </div>

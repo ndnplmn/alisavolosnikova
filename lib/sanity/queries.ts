@@ -51,6 +51,8 @@ export const ALL_PRINTS_QUERY = `
     "photo": photo-> {
       title,
       altText,
+      year,
+      "series": series->title,
       "image": image { asset->{ url, metadata { lqip, dimensions } } }
     }
   }

@@ -63,7 +63,7 @@ export function EditionBar({ editionSize, editionsSold, animDelay = 0 }: Edition
           className="absolute inset-0 bg-ink origin-left"
           style={{
             transform: 'scaleX(0)',
-            opacity: isSoldOut ? 0.25 : 1,
+            opacity: isSoldOut ? 0.35 : 1,
           }}
         />
       </div>
