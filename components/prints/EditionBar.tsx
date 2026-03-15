@@ -14,14 +14,13 @@ interface EditionBarProps {
 }
 
 export function EditionBar({ editionSize, editionsSold, animDelay = 0 }: EditionBarProps) {
-  if (editionSize <= 0) return null
-
   const wrapperRef = useRef<HTMLDivElement>(null)
   const fillRef    = useRef<HTMLDivElement>(null)
-  const sold       = Math.min(editionsSold, editionSize)
-  const editionsLeft = editionSize - sold
-  const isSoldOut  = editionsLeft === 0
-  const ratio      = sold / editionSize          // 0–1
+
+  const sold         = editionSize > 0 ? Math.min(editionsSold, editionSize) : 0
+  const editionsLeft = editionSize > 0 ? editionSize - sold : 0
+  const isSoldOut    = editionsLeft === 0
+  const ratio        = editionSize > 0 ? sold / editionSize : 0  // 0–1
 
   useEffect(() => {
     const fill    = fillRef.current
@@ -45,6 +44,8 @@ export function EditionBar({ editionSize, editionsSold, animDelay = 0 }: Edition
       anim.kill()
     }
   }, []) // entrance-only — runs once on mount
+
+  if (editionSize <= 0) return null
 
   const status = (() => {
     if (isSoldOut)          return { text: 'SOLD OUT',                   color: 'var(--color-muted)' }
