@@ -17,6 +17,7 @@ export function EditionBar({ editionSize, editionsSold, animDelay = 0 }: Edition
   const wrapperRef = useRef<HTMLDivElement>(null)
   const fillRef    = useRef<HTMLDivElement>(null)
 
+  if (editionSize <= 0) return null
   const sold       = Math.min(editionsSold, editionSize)
   const editionsLeft = editionSize - sold
   const isSoldOut  = editionsLeft === 0
@@ -39,8 +40,11 @@ export function EditionBar({ editionSize, editionsSold, animDelay = 0 }: Edition
       }
     )
 
-    return () => { anim.scrollTrigger?.kill() }
-  }, [ratio, animDelay])
+    return () => {
+      anim.scrollTrigger?.kill()
+      anim.kill()
+    }
+  }, []) // entrance-only — runs once on mount
 
   const status = (() => {
     if (isSoldOut)          return { text: 'SOLD OUT',                   color: 'var(--color-muted)' }
