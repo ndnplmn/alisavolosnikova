@@ -89,8 +89,8 @@ function SeriesRow({ series, index }: { series: SeriesItem; index: number }) {
     gsap.set(img,  { x: -20 })
     gsap.set(text, { x: 20 })
 
-    ScrollTrigger.create({
-      trigger: imgRef.current,
+    const st = ScrollTrigger.create({
+      trigger: img,
       start:   'top 80%',
       once:    true,
       onEnter: () => {
@@ -99,11 +99,7 @@ function SeriesRow({ series, index }: { series: SeriesItem; index: number }) {
       },
     })
 
-    return () => {
-      ScrollTrigger.getAll()
-        .filter(t => t.trigger === imgRef.current)
-        .forEach(t => t.kill())
-    }
+    return () => { st.kill() }
   }, [])
 
   if (!imageUrl) return null
