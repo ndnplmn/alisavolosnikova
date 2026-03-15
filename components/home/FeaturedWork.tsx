@@ -23,10 +23,47 @@ export interface SeriesItem {
   }
 }
 
-// ─── Marquee strip (CSS animation — no dependency on about/Marquee) ──────────
+// ─── Marquee strip (GSAP — velocity-linked + hover pause) ────────────────────
 function SeriesMarquee({ series }: { series: SeriesItem[] }) {
+  const stripRef     = useRef<HTMLDivElement>(null)
+  const isHoveredRef = useRef(false)
+
+  useEffect(() => {
+    const strip = stripRef.current
+    if (!strip) return
+
+    // GSAP tween replaces CSS animation — gives timeScale control
+    const tween = gsap.fromTo(
+      strip,
+      { xPercent: 0 },
+      { xPercent: -50, ease: 'none', duration: 40, repeat: -1 }
+    )
+
+    // Dual-factor timeScale: scroll velocity × hover pause
+    // speedFactor  — accelerates with scroll, min 0.4
+    // pauseFactor  — smoothly goes to 0 on hover, back to 1 on leave
+    let speedFactor = 1
+    let pauseFactor = 1
+
+    const tick = () => {
+      const velocity  = (ScrollTrigger as any).getVelocity()
+      const velTarget = Math.max(0.4, 1 + Math.abs(velocity) / 2800)
+      speedFactor     = gsap.utils.interpolate(speedFactor, velTarget, 0.09)
+
+      const pauseTarget = isHoveredRef.current ? 0 : 1
+      pauseFactor       = gsap.utils.interpolate(pauseFactor, pauseTarget, 0.10)
+
+      tween.timeScale(speedFactor * pauseFactor)
+    }
+    gsap.ticker.add(tick)
+
+    return () => {
+      gsap.ticker.remove(tick)
+      tween.kill()
+    }
+  }, [])
+
   if (series.length === 0) return null
-  // Duplicate for seamless loop
   const items = [...series, ...series]
 
   return (
@@ -34,16 +71,18 @@ function SeriesMarquee({ series }: { series: SeriesItem[] }) {
       className="overflow-hidden select-none"
       style={{ borderTop: '1px solid rgba(10,10,10,0.07)', borderBottom: '1px solid rgba(10,10,10,0.07)', padding: '20px 0' }}
       aria-hidden="true"
+      onMouseEnter={() => { isHoveredRef.current = true }}
+      onMouseLeave={() => { isHoveredRef.current = false }}
     >
       <div
-        className="flex"
-        style={{ animation: 'marquee-left 40s linear infinite', willChange: 'transform' }}
+        ref={stripRef}
+        className="flex will-change-transform"
       >
         {items.map((s, i) => (
           <TransitionLink
             key={`${s._id}-${i}`}
             href={`/work/${s.slug}`}
-            className="font-serif italic flex-shrink-0 mx-10 transition-opacity duration-300"
+            className="font-serif italic flex-shrink-0 mx-10"
             style={{
               fontSize:   'clamp(3rem, 5vw, 6rem)',
               fontWeight: 300,
