@@ -1,140 +1,390 @@
 // components/prints/PrintGrid.tsx
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { gsap } from 'gsap'
-// @ts-ignore – gsap type file uses lowercase 'flip.d.ts' but the module is 'Flip'
-import { Flip } from 'gsap/Flip'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { urlFor, getBlurDataURL } from '@/lib/sanity/image'
-import { CTAButton } from '@/components/ui/CTAButton'
+import { TransitionLink }        from '@/components/ui/PageTransition'
+import { EditionBar }            from './EditionBar'
 
-// @ts-ignore
-gsap.registerPlugin(Flip)
+gsap.registerPlugin(ScrollTrigger)
 
-type Filter = 'ALL' | 'B&W' | 'COLOR' | 'LARGE FORMAT' | 'SMALL FORMAT'
+const FILTERS = ['ALL', 'B&W', 'COLOR', 'LARGE FORMAT', 'SMALL FORMAT'] as const
+type Filter = typeof FILTERS[number]
 
+// ─── FilterBar ───────────────────────────────────────────────────────────────
+function FilterBar({
+  filter,
+  onChange,
+}: {
+  filter: Filter
+  onChange: (f: Filter) => void
+}) {
+  const containerRef  = useRef<HTMLDivElement>(null)
+  const indicatorRef  = useRef<HTMLDivElement>(null)
+  const buttonRefs    = useRef<(HTMLButtonElement | null)[]>([])
+
+  // Position indicator under the currently active filter
+  const positionIndicator = useCallback((f: Filter, animate: boolean) => {
+    const container = containerRef.current
+    const indicator = indicatorRef.current
+    if (!container || !indicator) return
+    const idx = FILTERS.indexOf(f)
+    const btn = buttonRefs.current[idx]
+    if (!btn) return
+    const cRect = container.getBoundingClientRect()
+    const bRect = btn.getBoundingClientRect()
+    if (animate) {
+      gsap.to(indicator, {
+        x:        bRect.left - cRect.left,
+        width:    bRect.width,
+        duration: 0.35,
+        ease:     'power3.inOut',
+      })
+    } else {
+      gsap.set(indicator, {
+        x:     bRect.left - cRect.left,
+        width: bRect.width,
+      })
+    }
+  }, [])
+
+  // Set initial position after mount (no animation)
+  useEffect(() => {
+    positionIndicator(filter, false)
+  }, [filter, positionIndicator])
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative flex gap-6 flex-wrap px-6 md:px-16 py-4 bg-light/90 z-30"
+      style={{ position: 'sticky', top: 'var(--nav-h)', backdropFilter: 'blur(8px)' }}
+    >
+      {FILTERS.map((f, i) => (
+        <button
+          key={f}
+          ref={el => { buttonRefs.current[i] = el }}
+          onClick={() => {
+            onChange(f)
+            positionIndicator(f, true)
+          }}
+          className="font-sans text-[9px] tracking-extreme transition-opacity duration-200"
+          style={{ opacity: filter === f ? 1 : 0.3 }}
+        >
+          {f}
+        </button>
+      ))}
+      {/* Sliding underline indicator */}
+      <div
+        ref={indicatorRef}
+        aria-hidden="true"
+        className="absolute bottom-0 bg-ink"
+        style={{ height: '1px', left: 0, width: 0 }}
+      />
+    </div>
+  )
+}
+
+// ─── PrintGrid ────────────────────────────────────────────────────────────────
 export function PrintGrid({ prints }: { prints: any[] }) {
-  const [filter, setFilter] = useState<Filter>('ALL')
-  const gridRef = useRef<HTMLDivElement>(null)
+  const [filter,  setFilter]  = useState<Filter>('ALL')
+  const [hovered, setHovered] = useState<string | null>(null)
+  const listRef = useRef<HTMLDivElement>(null)
 
   const filtered = prints.filter(p => {
-    if (filter === 'ALL') return true
-    if (filter === 'B&W') return p.colorMode === 'bw'
-    if (filter === 'COLOR') return p.colorMode === 'color'
+    if (filter === 'ALL')          return true
+    if (filter === 'B&W')          return p.colorMode === 'bw'
+    if (filter === 'COLOR')        return p.colorMode === 'color'
     if (filter === 'LARGE FORMAT') return p.format === 'large'
     if (filter === 'SMALL FORMAT') return p.format === 'small'
     return true
   })
 
-  const changeFilter = (f: Filter) => {
-    if (!gridRef.current) { setFilter(f); return }
-    // @ts-ignore
-    const state = Flip.getState(gridRef.current.querySelectorAll('[data-flip-id]'))
-    setFilter(f)
-    requestAnimationFrame(() => {
-      // @ts-ignore
-      Flip.from(state, { duration: 0.5, ease: 'power3.inOut', absolute: true })
+  // Filter change: exit → update state → enter
+  const changeFilter = useCallback((f: Filter) => {
+    if (f === filter) return
+    const cards = Array.from(
+      listRef.current?.querySelectorAll<HTMLElement>('[data-print-card]') ?? []
+    )
+    if (cards.length === 0) { setFilter(f); return }
+
+    gsap.to(cards, {
+      opacity: 0,
+      y: -12,
+      duration: 0.25,
+      stagger: 0.04,
+      ease: 'power2.in',
+      onComplete: () => {
+        setFilter(f)
+        requestAnimationFrame(() => {
+          const next = Array.from(
+            listRef.current?.querySelectorAll<HTMLElement>('[data-print-card]') ?? []
+          )
+          gsap.fromTo(
+            next,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.6, stagger: 0.07, ease: 'power3.out' }
+          )
+        })
+      },
     })
-  }
+  }, [filter])
 
   return (
     <div>
-      {/* Filters */}
-      <div className="flex gap-6 px-6 py-4 font-sans text-[9px] tracking-extreme text-muted flex-wrap">
-        {(['ALL', 'B&W', 'COLOR', 'LARGE FORMAT', 'SMALL FORMAT'] as Filter[]).map(f => (
-          <button key={f} onClick={() => changeFilter(f)} className={filter === f ? 'text-text-dark underline' : 'hover:text-text-dark transition-colors'}>
-            {f}
-          </button>
-        ))}
-      </div>
+      <FilterBar filter={filter} onChange={changeFilter} />
 
-      {/* Grid */}
-      <div ref={gridRef} className="px-6 py-12">
-        {/* Full width first print */}
-        {filtered[0] && <PrintCard key={filtered[0]._id} print={filtered[0]} full />}
-        {/* Two-column for rest */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-          {filtered.slice(1).map((p: any) => <PrintCard key={p._id} print={p} />)}
-        </div>
-
-        {filtered.length === 0 && (
+      {/* Print list */}
+      <div ref={listRef}>
+        {filtered.length === 0 ? (
           <div className="text-center py-24">
-            <p className="font-sans text-sm text-muted">No prints in this category yet.</p>
+            <p className="font-sans text-[9px] tracking-extreme text-muted">
+              No prints in this category yet.
+            </p>
           </div>
+        ) : (
+          filtered.map((p, i) => (
+            <div
+              key={p._id}
+              style={{ borderBottom: '1px solid rgba(10,10,10,0.1)' }}
+            >
+              <PrintCard
+                print={p}
+                index={i}
+                hovered={hovered}
+                onHover={setHovered}
+              />
+            </div>
+          ))
         )}
       </div>
 
-      {/* Edition note */}
-      <div className="text-center py-12 px-8 border-t border-text-dark/10">
-        <p className="font-sans text-[9px] tracking-extreme text-muted leading-relaxed">
-          All prints are produced to order.<br />
-          Production time: 2–3 weeks.<br />
-          Each piece ships with a certificate of authenticity.
-        </p>
-      </div>
+      {/* Closing section */}
+      <ClosingSection />
+    </div>
+  )
+}
 
-      {/* Back to work */}
-      <div className="flex flex-col items-center py-20 gap-6">
-        <div className="w-px h-12 bg-text-dark/20" />
-        <p className="font-sans text-[9px] tracking-extreme text-muted">BACK TO THE WORK</p>
-        <CTAButton href="/">VIEW PORTFOLIO</CTAButton>
+// ─── PrintCard ────────────────────────────────────────────────────────────────
+function PrintCard({
+  print,
+  index,
+  hovered,
+  onHover,
+}: {
+  print:   any
+  index:   number
+  hovered: string | null
+  onHover: (id: string | null) => void
+}) {
+  const cardRef  = useRef<HTMLDivElement>(null)
+  const textRef  = useRef<HTMLDivElement>(null)
+
+  const editionSize  = print.editionSize  ?? 10
+  const editionsSold = Math.min(print.editionsSold ?? 0, editionSize)
+  const editionsLeft = editionSize - editionsSold
+  const isSoldOut    = editionsLeft === 0
+  const photoTitle   = print.photo?.title ?? 'Fine Art Print'
+  const contactUrl   = `/contact?print=${encodeURIComponent(photoTitle)}`
+
+  const imageSource = print.photo?.image
+    ? urlFor(print.photo.image).width(1200).url()
+    : null
+
+  // Aspect ratio from Sanity metadata; fallback 4/3
+  const dim         = print.photo?.image?.asset?.metadata?.dimensions
+  const aspectRatio = dim ? `${dim.width}/${dim.height}` : '4/3'
+  const lqip        = print.photo?.image?.asset?.metadata?.lqip
+
+  // Scroll entrance: card slides up, text slides in from right
+  useEffect(() => {
+    const card = cardRef.current
+    const text = textRef.current
+    if (!card || !text) return
+
+    const cardAnim = gsap.fromTo(
+      card,
+      { opacity: 0, y: 40 },
+      {
+        opacity:  1,
+        y:        0,
+        duration: 1.0,
+        ease:     'power3.out',
+        scrollTrigger: { trigger: card, start: 'top 82%' },
+      }
+    )
+    const textAnim = gsap.fromTo(
+      text,
+      { opacity: 0, x: 16 },
+      {
+        opacity:  1,
+        x:        0,
+        duration: 0.9,
+        ease:     'power3.out',
+        delay:    0.15,
+        scrollTrigger: { trigger: card, start: 'top 82%' },
+      }
+    )
+
+    return () => {
+      cardAnim.scrollTrigger?.kill()
+      cardAnim.kill()
+      textAnim.scrollTrigger?.kill()
+      textAnim.kill()
+    }
+  }, [])
+
+  if (!imageSource) return null
+
+  const isDimmed = hovered !== null && hovered !== print._id
+
+  return (
+    // Outer div handles sibling dimming via CSS transition
+    <div
+      style={{ opacity: isDimmed ? 0.35 : 1, transition: 'opacity 0.4s ease' }}
+      onMouseEnter={() => onHover(print._id)}
+      onMouseLeave={() => onHover(null)}
+    >
+      {/* Inner div is the GSAP entrance target */}
+      <div
+        ref={cardRef}
+        data-print-card
+        className="flex flex-col md:flex-row py-10 md:py-14 px-6 md:px-16"
+        style={{ opacity: 0 }}
+      >
+        {/* Image column — 65% */}
+        <div
+          className="relative overflow-hidden w-full md:w-[65%] flex-shrink-0"
+          style={{
+            aspectRatio,
+            opacity: isSoldOut ? 0.45 : 1,
+          }}
+        >
+          <Image
+            src={imageSource}
+            alt={print.photo?.altText ?? photoTitle}
+            fill
+            sizes="(max-width: 768px) 100vw, 65vw"
+            className="object-cover"
+            {...(lqip ? { placeholder: 'blur', blurDataURL: getBlurDataURL(lqip) } : {})}
+          />
+        </div>
+
+        {/* Text panel — 35% */}
+        <div
+          ref={textRef}
+          className="flex flex-col justify-between pt-8 md:pt-0 md:pl-10 lg:pl-14 md:w-[35%]"
+          style={{ opacity: 0 }}
+        >
+          {/* Top: meta + title + specs */}
+          <div>
+            <p className="font-sans text-[9px] tracking-extreme text-muted mb-5">
+              {print.photo?.series
+                ? `${print.photo.series} · ${print.photo?.year ?? ''}`
+                : (print.photo?.year ?? 'FINE ART')}
+            </p>
+            <p
+              className="font-serif italic text-text-dark"
+              style={{
+                fontSize:      'clamp(1.8rem, 3vw, 3.5rem)',
+                fontWeight:    300,
+                lineHeight:    1.05,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              {photoTitle}
+            </p>
+            <div className="mt-6 flex flex-col gap-1.5">
+              {print.dimensions && (
+                <p className="font-sans text-[9px] tracking-extreme text-muted">
+                  {print.dimensions}
+                </p>
+              )}
+              {print.paper && (
+                <p className="font-sans text-[9px] tracking-extreme text-muted">
+                  {print.paper}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Bottom: EditionBar + CTA */}
+          <div className="mt-10 md:mt-0">
+            <EditionBar
+              editionSize={editionSize}
+              editionsSold={editionsSold}
+              animDelay={index * 0.08}
+            />
+            <div className="mt-8">
+              {isSoldOut ? (
+                <span className="font-sans text-[9px] tracking-extreme text-muted">
+                  SOLD OUT
+                </span>
+              ) : (
+                <Link
+                  href={contactUrl}
+                  data-cursor="link"
+                  className="font-sans text-[9px] tracking-extreme text-text-dark
+                             transition-opacity duration-300 hover:opacity-45"
+                >
+                  INQUIRE ABOUT THIS EDITION →
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
-function PrintCard({ print, full = false }: { print: any; full?: boolean }) {
-  const editionSize = print.editionSize ?? 10
-  const editionsSold = Math.min(print.editionsSold ?? 0, editionSize)
-  const editionsLeft = editionSize - editionsSold
-  const isSoldOut = editionsLeft === 0
-  const photoTitle = print.photo?.title ?? 'Fine Art Print'
-  const contactUrl = `/contact?print=${encodeURIComponent(photoTitle)}`
-
-  const imageSource = print.photo?.image
-    ? urlFor(print.photo.image).width(full ? 1800 : 900).url()
-    : null
-
-  if (!imageSource) return null
-
+// ─── ClosingSection ───────────────────────────────────────────────────────────
+function ClosingSection() {
   return (
-    <div data-flip-id={print._id} className={`group ${full ? 'mb-2' : ''}`}>
-      <div className="relative overflow-hidden" data-cursor="photo">
-        <Image
-          src={imageSource}
-          alt={print.photo?.altText ?? photoTitle}
-          width={full ? 1800 : 900}
-          height={full ? 1200 : 1200}
-          placeholder="blur"
-          blurDataURL={getBlurDataURL(print.photo?.image?.asset?.metadata?.lqip)}
-          className="w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-        />
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-dark/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-          <p className="font-serif text-xl text-text-light">{photoTitle}</p>
-        </div>
+    <div
+      className="px-6 md:px-16 py-24"
+      style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}
+    >
+      <p
+        className="font-serif italic text-text-dark/50"
+        style={{
+          fontSize:   'clamp(1.4rem, 2.2vw, 2.2rem)',
+          lineHeight: 1.7,
+          maxWidth:   '42ch',
+        }}
+      >
+        Each print arrives rolled in archival tissue, with a signed
+        certificate of authenticity and edition number.
+      </p>
+
+      <div className="mt-10 flex flex-col gap-2">
+        <p className="font-sans text-[9px] tracking-extreme text-muted">
+          PRODUCTION TIME: 2–3 WEEKS
+        </p>
+        <p className="font-sans text-[9px] tracking-extreme text-muted">
+          SHIPS WORLDWIDE · INSURED DELIVERY
+        </p>
       </div>
-      <div className="py-4">
-        <div className="h-px w-full bg-text-dark/10 mb-3" />
-        <div className="flex justify-between items-baseline">
-          <div>
-            <p className="font-sans text-[9px] tracking-extreme text-text-dark">{photoTitle}</p>
-            <p className="font-sans text-[9px] tracking-extreme text-muted mt-1">
-              Edition of {editionSize} · {print.dimensions ?? '—'} · {print.paper ?? '—'}
-            </p>
-            <p className="font-sans text-[9px] tracking-extreme text-muted mt-0.5">
-              {isSoldOut ? 'Sold out' : `${editionsLeft} of ${editionSize} remaining`}
-            </p>
-          </div>
-          {isSoldOut ? (
-            <span className="font-sans text-[9px] tracking-extreme text-muted">SOLD OUT</span>
-          ) : (
-            <Link href={contactUrl} className="font-sans text-[9px] tracking-extreme hover:opacity-60 transition-opacity" data-cursor="link">
-              INQUIRE →
-            </Link>
-          )}
-        </div>
+
+      <div
+        className="mt-16 pt-16"
+        style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}
+      >
+        <TransitionLink
+          href="/"
+          className="font-serif italic text-text-dark transition-opacity duration-500 hover:opacity-45"
+          style={{
+            fontSize:      'clamp(2.5rem, 5vw, 6rem)',
+            fontWeight:    300,
+            lineHeight:    0.95,
+            letterSpacing: '-0.025em',
+            display:       'inline-block',
+          }}
+        >
+          Back to the work →
+        </TransitionLink>
       </div>
     </div>
   )
