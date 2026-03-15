@@ -53,6 +53,9 @@ export function Statement() {
     return () => { trigger.kill() }
   }, [])
 
+  // Reset ref array on every render to prevent stale accumulation on remount
+  wordsRef.current = []
+
   // Split quote into words — each in an overflow:hidden wrapper for the slide-up
   const wordElements = QUOTE.split(' ').map((word, i) => (
     <span
