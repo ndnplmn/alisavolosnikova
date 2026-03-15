@@ -1,9 +1,6 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
 
 interface MarqueeProps {
   row1Items: string[]
@@ -24,11 +21,24 @@ export function Marquee({ row1Items, row2Items }: MarqueeProps) {
     // Row 2 runs in opposite direction: start at -50%, return to 0%
     const t2 = gsap.fromTo(row2, { xPercent: -50 }, { xPercent: 0,   ease: 'none', duration: 30, repeat: -1 })
 
-    // Velocity-linked speed: scroll → marquee accelerates proportionally
+    // Velocity-linked speed: track scroll delta manually
+    let lastY = window.scrollY
+    let lastT = Date.now()
+    let scrollVelocity = 0
     let smoothFactor = 1
+
+    const onScroll = () => {
+      const now = Date.now()
+      const dt  = now - lastT
+      if (dt > 0) scrollVelocity = ((window.scrollY - lastY) / dt) * 1000
+      lastY = window.scrollY
+      lastT = now
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+
     const tick = () => {
-      const velocity = ScrollTrigger.getVelocity()
-      const target = Math.max(0.4, 1 + Math.abs(velocity) / 2800)
+      scrollVelocity *= 0.9
+      const target = Math.max(0.4, 1 + Math.abs(scrollVelocity) / 2800)
       smoothFactor = gsap.utils.interpolate(smoothFactor, target, 0.09)
       t1.timeScale(smoothFactor)
       t2.timeScale(smoothFactor)
@@ -36,6 +46,7 @@ export function Marquee({ row1Items, row2Items }: MarqueeProps) {
     gsap.ticker.add(tick)
 
     return () => {
+      window.removeEventListener('scroll', onScroll)
       gsap.ticker.remove(tick)
       t1.kill()
       t2.kill()
