@@ -60,7 +60,13 @@ export function Statement() {
   const wordElements = QUOTE.split(' ').map((word, i) => (
     <span
       key={i}
-      style={{ display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom', marginRight: '0.28em' }}
+      style={{
+        display:       'inline-block',
+        overflow:      'hidden',
+        verticalAlign: 'bottom',
+        marginRight:   i === 4 ? 0 : '0.28em',
+        fontSize:      i === 4 ? 'clamp(7.5rem, 13vw, 19rem)' : 'clamp(2.4rem, 3.8vw, 5.5rem)',
+      }}
     >
       <span
         ref={el => { if (el) wordsRef.current[i] = el }}
@@ -85,7 +91,6 @@ export function Statement() {
       <div
         className="font-serif italic text-text-light"
         style={{
-          fontSize:      'clamp(3.5rem, 6vw, 8rem)',
           fontWeight:    300,
           lineHeight:    0.92,
           letterSpacing: '-0.03em',
