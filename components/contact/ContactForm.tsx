@@ -66,11 +66,11 @@ export function ContactForm({ defaultPrintName }: Props) {
     <form ref={formRef} onSubmit={handleSubmit} className="w-full max-w-xl">
       <div className="mb-8">
         <label htmlFor="contact-name" className="block font-sans text-[9px] tracking-extreme text-muted mb-2">NAME</label>
-        <input id="contact-name" name="name" required className="w-full bg-transparent border-0 border-b border-text-light/20 pb-2 font-sans text-sm text-text-light focus:outline-none focus:border-text-light transition-colors" />
+        <input id="contact-name" name="name" required className="w-full bg-transparent border-0 border-b border-text-dark/20 pb-2 font-sans text-sm text-text-dark focus:outline-none focus:border-text-dark transition-colors" />
       </div>
       <div className="mb-8">
         <label htmlFor="contact-email" className="block font-sans text-[9px] tracking-extreme text-muted mb-2">EMAIL</label>
-        <input id="contact-email" name="email" type="email" required className="w-full bg-transparent border-0 border-b border-text-light/20 pb-2 font-sans text-sm text-text-light focus:outline-none focus:border-text-light transition-colors" />
+        <input id="contact-email" name="email" type="email" required className="w-full bg-transparent border-0 border-b border-text-dark/20 pb-2 font-sans text-sm text-text-dark focus:outline-none focus:border-text-dark transition-colors" />
       </div>
       <fieldset className="mb-8 border-0 p-0 m-0">
         <legend className="block font-sans text-[9px] tracking-extreme text-muted mb-3">TYPE OF PROJECT</legend>
@@ -81,7 +81,7 @@ export function ContactForm({ defaultPrintName }: Props) {
               type="button"
               onClick={() => setType(t)}
               aria-pressed={type === t}
-              className={`font-sans text-[9px] tracking-extreme transition-colors ${type === t ? 'text-text-light underline' : 'text-muted hover:text-text-light'}`}
+              className={`font-sans text-[9px] tracking-extreme transition-colors ${type === t ? 'text-text-dark underline' : 'text-muted hover:text-text-dark'}`}
             >
               {t}
             </button>
@@ -96,7 +96,7 @@ export function ContactForm({ defaultPrintName }: Props) {
           required
           rows={4}
           defaultValue={defaultPrintName ? `I'm interested in "${defaultPrintName}"` : ''}
-          className="w-full bg-transparent border-0 border-b border-text-light/20 pb-2 font-sans text-sm text-text-light focus:outline-none focus:border-text-light transition-colors resize-none"
+          className="w-full bg-transparent border-0 border-b border-text-dark/20 pb-2 font-sans text-sm text-text-dark focus:outline-none focus:border-text-dark transition-colors resize-none"
         />
       </div>
       {error && (
