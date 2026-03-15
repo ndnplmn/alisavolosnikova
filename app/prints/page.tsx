@@ -1,7 +1,7 @@
 // app/prints/page.tsx
-import { client } from '@/lib/sanity/client'
+import { client }           from '@/lib/sanity/client'
 import { ALL_PRINTS_QUERY } from '@/lib/sanity/queries'
-import { PrintGrid } from '@/components/prints/PrintGrid'
+import { PrintGrid }        from '@/components/prints/PrintGrid'
 export const revalidate = 3600
 
 const PLACEHOLDER_PRINTS = [
@@ -70,19 +70,46 @@ export default async function PrintsPage() {
   } catch {
     // Sanity not configured yet
   }
-
   if (prints.length === 0) prints = PLACEHOLDER_PRINTS
+
+  // Compute total available editions server-side
+  const availableEditions = prints.reduce((sum: number, p: any) => {
+    const size = p.editionSize ?? 10
+    const sold = Math.min(p.editionsSold ?? 0, size)
+    return sum + (size - sold)
+  }, 0)
 
   return (
     <div className="min-h-screen bg-light text-text-dark">
-      <div className="interior" style={{ paddingBottom: '32px' }}>
-        <p className="font-sans text-[9px] tracking-extreme text-muted mb-8">
-          FINE ART PRINTS · LIMITED EDITIONS · ARCHIVAL QUALITY
+      {/* ── Header ──────────────────────────────────────────────── */}
+      <div className="px-6 md:px-16 pt-16 pb-0">
+        <p className="font-sans text-[9px] tracking-extreme text-muted mb-10">
+          FINE ART PRINTS
         </p>
-        <p className="font-serif text-2xl leading-relaxed mb-8">
-          Each print is produced on archival paper, signed and numbered by Alisa.
-        </p>
-        <div className="h-px w-full bg-text-dark/10" />
+        <h1
+          className="font-serif italic text-text-dark"
+          style={{
+            fontSize:      'clamp(4rem, 9vw, 12rem)',
+            fontWeight:    300,
+            lineHeight:    0.88,
+            letterSpacing: '-0.03em',
+          }}
+        >
+          Limited<br />Editions.
+        </h1>
+        <div
+          className="flex flex-wrap items-center justify-between gap-4 mt-10 pt-6"
+          style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}
+        >
+          <p className="font-sans text-[9px] tracking-extreme text-muted">
+            ARCHIVAL PIGMENT · SIGNED &amp; NUMBERED · PRODUCED TO ORDER
+          </p>
+          {availableEditions > 0 && (
+            <p className="font-sans text-[9px] tracking-extreme text-muted">
+              {availableEditions} EDITION{availableEditions !== 1 ? 'S' : ''} AVAILABLE
+            </p>
+          )}
+        </div>
       </div>
 
       <PrintGrid prints={prints} />
