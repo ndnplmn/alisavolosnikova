@@ -52,9 +52,10 @@ function FilterBar({
   }, [])
 
   // Set initial position after mount (no animation)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     positionIndicator(filter, false)
-  }, [filter, positionIndicator])
+  }, []) // mount only — click path handles animated transitions via positionIndicator(f, true)
 
   return (
     <div
@@ -70,6 +71,7 @@ function FilterBar({
             onChange(f)
             positionIndicator(f, true)
           }}
+          aria-pressed={filter === f}
           className="font-sans text-[9px] tracking-extreme transition-opacity duration-200"
           style={{ opacity: filter === f ? 1 : 0.3 }}
         >
@@ -110,6 +112,9 @@ export function PrintGrid({ prints }: { prints: any[] }) {
     )
     if (cards.length === 0) { setFilter(f); return }
 
+    // Kill any in-flight tweens from a previous rapid filter change
+    gsap.killTweensOf(cards)
+
     gsap.to(cards, {
       opacity: 0,
       y: -12,
@@ -122,6 +127,12 @@ export function PrintGrid({ prints }: { prints: any[] }) {
           const next = Array.from(
             listRef.current?.querySelectorAll<HTMLElement>('[data-print-card]') ?? []
           )
+          // Kill any ScrollTriggers that fired immediately on mount (card already in viewport)
+          // so the filter enter tween is the authoritative animation for this transition
+          ScrollTrigger.getAll()
+            .filter(st => next.includes(st.trigger as HTMLElement))
+            .forEach(st => st.kill())
+
           gsap.fromTo(
             next,
             { opacity: 0, y: 20 },
