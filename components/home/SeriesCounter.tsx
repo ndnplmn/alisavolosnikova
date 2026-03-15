@@ -71,7 +71,7 @@ export function SeriesCounter() {
                 className="font-serif italic text-text-light block"
                 style={{ fontSize: 'clamp(4rem, 6vw, 7rem)', fontWeight: 300, lineHeight: 1 }}
               >
-                {String(value).padStart(2, '0')}
+                {'00'}
               </span>
               <p
                 ref={el => { labelRefs.current[i] = el }}
