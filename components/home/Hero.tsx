@@ -272,7 +272,7 @@ export function Hero() {
                 className="font-serif italic mt-2"
                 style={{ fontSize: '13px', lineHeight: 1.8, opacity: 0.6, color: 'var(--color-text-dark)', whiteSpace: 'pre-line' }}
               >
-                {photo[lang as 'en' | 'ru']}
+                {photo[lang]}
               </p>
               <p className="font-sans text-[9px] tracking-extreme text-muted mt-3">
                 {photo.location}
@@ -370,7 +370,7 @@ export function Hero() {
                 whiteSpace: 'pre-line',
               }}
             >
-              {filteredPhotos[0]?.[lang as 'en' | 'ru'] ?? ''}
+              {filteredPhotos[0]?.[lang] ?? ''}
             </p>
             <p
               ref={el => { locRef.current = el; primaryTextRefs.current[3] = el }}
