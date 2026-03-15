@@ -1,42 +1,108 @@
-import Image from 'next/image'
-import { CTAButton } from '@/components/ui/CTAButton'
-import { getBlurDataURL } from '@/lib/sanity/image'
+// components/home/PrintTeaser.tsx
+'use client'
+import { useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { TransitionLink } from '@/components/ui/PageTransition'
 
-interface PrintTeaserProps {
-  imageUrl?: string
-  imageAlt?: string
-  blurDataURL?: string
-}
+gsap.registerPlugin(ScrollTrigger)
 
-export function PrintTeaser({ imageUrl, imageAlt = 'Fine art print', blurDataURL }: PrintTeaserProps) {
-  if (!imageUrl) return null
+const HEADING_LINES = ['Limited', 'editions,', 'archival quality.']
+
+export function PrintTeaser() {
+  const sectionRef  = useRef<HTMLElement>(null)
+  const lineRefs    = useRef<(HTMLSpanElement | null)[]>([])
+  const bottomRef   = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const section = sectionRef.current
+    const bottom  = bottomRef.current
+    if (!section || !bottom) return
+
+    const lines = lineRefs.current.filter(Boolean) as HTMLElement[]
+    if (lines.length === 0) return
+
+    gsap.set(lines,  { clipPath: 'inset(0 100% 0 0)' })
+    gsap.set(bottom, { opacity: 0, y: 8 })
+
+    const st = ScrollTrigger.create({
+      trigger: section,
+      start:   'top 78%',
+      once:    true,
+      onEnter: () => {
+        gsap.to(lines, {
+          clipPath:  'inset(0 0% 0 0)',
+          duration:  1.0,
+          stagger:   0.15,
+          ease:      'power3.inOut',
+        })
+        gsap.to(bottom, {
+          opacity:  1,
+          y:        0,
+          duration: 0.6,
+          ease:     'power2.out',
+          delay:    lines.length * 0.15 + 0.3,
+        })
+      },
+    })
+
+    return () => { st.kill() }
+  }, [])
+
+  lineRefs.current = []
 
   return (
-    <section className="bg-dark">
-      {/* Full-bleed editorial image */}
-      <div className="relative w-full aspect-[16/9] overflow-hidden">
-        <Image
-          src={imageUrl}
-          alt={imageAlt}
-          fill
-          sizes="100vw"
-          placeholder="blur"
-          blurDataURL={blurDataURL ?? getBlurDataURL()}
-          className="object-cover"
-        />
-        {/* Overlay text — bottom-left editorial positioning */}
-        <div className="absolute inset-0 bg-dark/30" />
-        <div className="absolute bottom-8 left-8 right-8 flex items-end justify-between">
-          <div>
-            <p className="font-sans text-[9px] tracking-[0.25em] text-text-light/50 uppercase mb-2">
-              Fine Art Prints
-            </p>
-            <p className="font-serif italic text-4xl md:text-6xl text-text-light leading-tight max-w-lg">
-              Limited editions,<br />archival quality.
-            </p>
-          </div>
-          <CTAButton href="/prints">VIEW PRINTS</CTAButton>
-        </div>
+    <section
+      ref={sectionRef}
+      className="bg-ink px-6 md:px-16 pt-16 pb-32"
+      style={{ borderTop: '1px solid rgba(245,245,245,0.08)' }}
+    >
+      {/* Label */}
+      <p className="font-sans text-[9px] tracking-extreme text-muted mb-10">
+        FINE ART PRINTS
+      </p>
+
+      {/* Heading — each line clip-path revealed */}
+      <div
+        className="font-serif italic text-text-light"
+        style={{
+          fontSize:      'clamp(4rem, 8vw, 11rem)',
+          fontWeight:    300,
+          lineHeight:    0.88,
+          letterSpacing: '-0.03em',
+        }}
+        aria-label={HEADING_LINES.join(' ')}
+      >
+        {HEADING_LINES.map((line, i) => (
+          <span
+            key={i}
+            ref={el => { lineRefs.current[i] = el }}
+            style={{ display: 'block' }}
+            aria-hidden="true"
+          >
+            {line}
+          </span>
+        ))}
+      </div>
+
+      {/* Divider */}
+      <div
+        style={{ height: '1px', background: 'rgba(245,245,245,0.08)', marginTop: '5rem' }}
+      />
+
+      {/* Bottom row */}
+      <div ref={bottomRef} className="flex justify-between items-center mt-8">
+        <p className="font-sans text-[9px] tracking-extreme text-muted">
+          ARCHIVAL PIGMENT · SIGNED &amp; NUMBERED · PRODUCED TO ORDER
+        </p>
+        <TransitionLink
+          href="/prints"
+          data-cursor="link"
+          className="font-sans text-[9px] tracking-extreme text-text-light
+                     transition-opacity duration-300 hover:opacity-40 ml-8 flex-shrink-0"
+        >
+          VIEW PRINTS →
+        </TransitionLink>
       </div>
     </section>
   )
