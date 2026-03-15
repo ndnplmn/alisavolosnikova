@@ -25,15 +25,15 @@ const FILTERS = ['ALL', 'B&W', 'COLOR'] as const
 
 // ─── Photo data ───────────────────────────────────────────────────────────────
 const PHOTOS = [
-  { src: '/images/foto-01.png', slug: 'oblique-light',     title: 'Oblique Light',        series: '', year: '2024', position: 'center 30%',    mode: 'dark'  as const, location: 'Moscow · 2024',           en: 'Oblique light on skin.\nSilence has texture.',                     ru: 'Косой свет на коже.\nТишина имеет фактуру.' },
-  { src: '/images/foto-02.png', slug: 'between-breaths',   title: 'Between Breaths',      series: '', year: '2024', position: 'center center',  mode: 'dark'  as const, location: 'Saint Petersburg · 2024', en: 'A pause between two breaths.\nNothing moves.',                     ru: 'Пауза между двумя вдохами.\nНичто не движется.' },
-  { src: '/images/foto-03.png', slug: 'body-as-landscape', title: 'Body as Landscape',    series: '', year: '2023', position: 'center 40%',    mode: 'light' as const, location: 'Tbilisi · 2023',          en: 'The body as landscape.\nShadow is its geography.',                ru: 'Тело как пейзаж.\nТень — его география.' },
-  { src: '/images/foto-04.png', slug: 'suspended-instant', title: 'Suspended Instant',    series: '', year: '2025', position: 'center center',  mode: 'dark'  as const, location: 'Moscow · 2025',           en: 'A suspended instant.\nTime does not advance here.',               ru: 'Застывший миг.\nВремя здесь не движется.' },
-  { src: '/images/foto-05.png', slug: 'fragment-real',     title: 'Fragment of the Real', series: '', year: '2024', position: 'center 35%',    mode: 'light' as const, location: 'Helsinki · 2024',         en: 'A fragment of the real.\nEverything else is noise.',              ru: 'Фрагмент реального.\nВсё остальное — шум.' },
-  { src: '/images/foto-06.png', slug: 'light-reveals',     title: 'Light Reveals',        series: '', year: '2023', position: 'center center',  mode: 'dark'  as const, location: 'Yerevan · 2023',          en: 'Light does not illuminate —\nit reveals what was already there.', ru: 'Свет не освещает —\nон открывает то, что уже было.' },
-  { src: '/images/foto-07.png', slug: 'active-stillness',  title: 'Active Stillness',     series: '', year: '2025', position: 'center 40%',    mode: 'light' as const, location: 'Moscow · 2025',           en: 'Active stillness.\nThe image breathes on its own.',              ru: 'Активная тишина.\nОбраз дышит сам по себе.' },
-  { src: '/images/foto-08.png', slug: 'between-form',      title: 'Between Form',         series: '', year: '2024', position: 'center center',  mode: 'dark'  as const, location: 'Riga · 2024',             en: 'Between form and its absence.\nA threshold zone.',               ru: 'Между формой и её отсутствием.\nПограничная зона.' },
-  { src: '/images/foto-09.png', slug: 'last-frame',        title: 'Last Frame',           series: '', year: '2025', position: 'center 30%',    mode: 'light' as const, location: 'Saint Petersburg · 2025', en: 'The last frame.\nThe visible dissolves.',                         ru: 'Последний кадр.\nВидимое растворяется.' },
+  { src: '/images/foto-01.jpg', slug: 'oblique-light',     title: 'Oblique Light',        series: '', year: '2024', position: 'center 30%',    mode: 'dark'  as const, location: 'Moscow · 2024',           en: 'Oblique light on skin.\nSilence has texture.',                     ru: 'Косой свет на коже.\nТишина имеет фактуру.' },
+  { src: '/images/foto-02.jpg', slug: 'between-breaths',   title: 'Between Breaths',      series: '', year: '2024', position: 'center center',  mode: 'dark'  as const, location: 'Saint Petersburg · 2024', en: 'A pause between two breaths.\nNothing moves.',                     ru: 'Пауза между двумя вдохами.\nНичто не движется.' },
+  { src: '/images/foto-03.jpg', slug: 'body-as-landscape', title: 'Body as Landscape',    series: '', year: '2023', position: 'center 40%',    mode: 'light' as const, location: 'Tbilisi · 2023',          en: 'The body as landscape.\nShadow is its geography.',                ru: 'Тело как пейзаж.\nТень — его география.' },
+  { src: '/images/foto-04.jpg', slug: 'suspended-instant', title: 'Suspended Instant',    series: '', year: '2025', position: 'center center',  mode: 'dark'  as const, location: 'Moscow · 2025',           en: 'A suspended instant.\nTime does not advance here.',               ru: 'Застывший миг.\nВремя здесь не движется.' },
+  { src: '/images/foto-05.jpg', slug: 'fragment-real',     title: 'Fragment of the Real', series: '', year: '2024', position: 'center 35%',    mode: 'light' as const, location: 'Helsinki · 2024',         en: 'A fragment of the real.\nEverything else is noise.',              ru: 'Фрагмент реального.\nВсё остальное — шум.' },
+  { src: '/images/foto-06.jpg', slug: 'light-reveals',     title: 'Light Reveals',        series: '', year: '2023', position: 'center center',  mode: 'dark'  as const, location: 'Yerevan · 2023',          en: 'Light does not illuminate —\nit reveals what was already there.', ru: 'Свет не освещает —\nон открывает то, что уже было.' },
+  { src: '/images/foto-07.jpg', slug: 'active-stillness',  title: 'Active Stillness',     series: '', year: '2025', position: 'center 40%',    mode: 'light' as const, location: 'Moscow · 2025',           en: 'Active stillness.\nThe image breathes on its own.',              ru: 'Активная тишина.\nОбраз дышит сам по себе.' },
+  { src: '/images/foto-08.jpg', slug: 'between-form',      title: 'Between Form',         series: '', year: '2024', position: 'center center',  mode: 'dark'  as const, location: 'Riga · 2024',             en: 'Between form and its absence.\nA threshold zone.',               ru: 'Между формой и её отсутствием.\nПограничная зона.' },
+  { src: '/images/foto-09.jpg', slug: 'last-frame',        title: 'Last Frame',           series: '', year: '2025', position: 'center 30%',    mode: 'light' as const, location: 'Saint Petersburg · 2025', en: 'The last frame.\nThe visible dissolves.',                         ru: 'Последний кадр.\nВидимое растворяется.' },
 ]
 
 // ─── FilterBar ────────────────────────────────────────────────────────────────
@@ -220,19 +220,20 @@ export function Hero() {
 
   // ── ScrollTriggers + Lenis snap ──
   useEffect(() => {
-    photoRefs.current = []
+    // DO NOT reset photoRefs.current here — refs are populated by JSX ref callbacks
+    // which run before effects. Resetting here empties the array before forEach.
 
     let lastSnapAt = 0
     const snapTo = (el: HTMLElement) => {
       const now = Date.now()
       if (now - lastSnapAt < 1000) return
       lastSnapAt = now
-      getLenis()?.scrollTo(el, { offset: -48, duration: 1.1 })
+      getLenis()?.scrollTo(el, { offset: 0, duration: 1.1 })
     }
 
     const triggers: ScrollTrigger[] = []
 
-    photoRefs.current.forEach((el, i) => {
+    photoRefs.current.slice(0, filteredPhotos.length).forEach((el, i) => {
       if (!el) return
 
       if (!isMobile) {
@@ -356,12 +357,8 @@ export function Hero() {
             justifyContent:  'space-between',
           }}
         >
-          {/* TOP: artist name + rule + filter */}
+          {/* TOP: filter */}
           <div ref={panelTopRef} className="px-8 pt-10">
-            <p className="font-sans text-[9px] tracking-extreme" style={{ color: colors.muted }}>
-              АЛИСА ВОЛОСНИКОВА
-            </p>
-            <div style={{ height: '1px', background: colors.rule, margin: '12px 0 16px' }} />
             <FilterBar filter={filter} onChange={setFilter} mode={activeMode} />
             <div style={{ height: '1px', background: colors.rule, marginTop: '16px' }} />
           </div>

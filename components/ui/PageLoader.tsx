@@ -10,7 +10,7 @@ import { gsap } from 'gsap'
  * Sequence: initials rise → words expand → counter → fade → centre-split exit
  */
 
-const COUNT_DURATION = 2800
+const COUNT_DURATION = 1400
 
 export function PageLoader() {
   const leftPanelRef  = useRef<HTMLDivElement>(null)

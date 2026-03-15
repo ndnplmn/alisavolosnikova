@@ -80,14 +80,14 @@ export default async function PrintsPage() {
   }, 0)
 
   return (
-    <div className="min-h-screen bg-light text-text-dark">
-      {/* ── Header ──────────────────────────────────────────────── */}
-      <div className="px-6 md:px-16 pt-16 pb-0">
-        <p className="font-sans text-[9px] tracking-extreme text-muted mb-10">
+    <div>
+      {/* ── Header — ink background ─────────────────────────────── */}
+      <div className="bg-ink text-text-light px-6 md:px-16 pt-24 pb-16">
+        <p className="font-sans text-[9px] tracking-extreme mb-10" style={{ color: 'rgba(245,245,245,0.35)' }}>
           FINE ART PRINTS
         </p>
         <h1
-          className="font-serif italic text-text-dark"
+          className="font-serif italic text-text-light"
           style={{
             fontSize:      'clamp(4rem, 9vw, 12rem)',
             fontWeight:    300,
@@ -99,20 +99,23 @@ export default async function PrintsPage() {
         </h1>
         <div
           className="flex flex-wrap items-center justify-between gap-4 mt-10 pt-6"
-          style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}
+          style={{ borderTop: '1px solid rgba(245,245,245,0.1)' }}
         >
-          <p className="font-sans text-[9px] tracking-extreme text-muted">
+          <p className="font-sans text-[9px] tracking-extreme" style={{ color: 'rgba(245,245,245,0.35)' }}>
             ARCHIVAL PIGMENT · SIGNED &amp; NUMBERED · PRODUCED TO ORDER
           </p>
           {availableEditions > 0 && (
-            <p className="font-sans text-[9px] tracking-extreme text-muted">
+            <p className="font-sans text-[9px] tracking-extreme" style={{ color: 'rgba(245,245,245,0.35)' }}>
               {availableEditions} EDITION{availableEditions !== 1 ? 'S' : ''} AVAILABLE
             </p>
           )}
         </div>
       </div>
 
-      <PrintGrid prints={prints} />
+      {/* ── Grid — light background ─────────────────────────────── */}
+      <div className="bg-light text-text-dark">
+        <PrintGrid prints={prints} />
+      </div>
     </div>
   )
 }

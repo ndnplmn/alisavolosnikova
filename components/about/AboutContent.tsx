@@ -56,115 +56,133 @@ export function AboutContent({ data }: { data: any }) {
   })()
 
   return (
-    <div className="min-h-screen bg-light text-text-dark">
+    <div>
 
-      {/* ── Zone 1: Statement — full viewport display type, page-load reveal ─── */}
-      {data.statement && (
-        <div
-          className="min-h-screen flex flex-col justify-end"
-          style={{
-            padding: 'clamp(2rem, 5vw, 5rem)',
-            paddingBottom: 'clamp(3rem, 10vh, 8rem)',
-          }}
-        >
-          <p
-            ref={statementRef}
-            className="font-serif text-text-dark"
+      {/* ── Zone 1: Statement — ink background, full viewport, page-load reveal ─ */}
+      <div className="bg-ink text-text-light">
+        {data.statement ? (
+          <div
+            className="min-h-screen flex flex-col justify-end"
             style={{
-              fontSize: 'clamp(2.2rem, 7vw, 10rem)',
-              fontStyle: 'italic',
-              fontWeight: 300,
-              lineHeight: 1.06,
-              letterSpacing: '-0.025em',
-              maxWidth: '20ch',
+              padding: 'clamp(2rem, 5vw, 5rem)',
+              paddingBottom: 'clamp(3rem, 10vh, 8rem)',
             }}
           >
-            {data.statement}
-          </p>
-
-          {/* Scroll hint */}
-          <div className="flex items-center gap-4 mt-14">
-            <div className="w-8 h-px bg-text-dark/25" />
-            <span
-              className="font-sans text-muted"
-              style={{ fontSize: '9px', letterSpacing: '0.22em' }}
-            >
-              SCROLL
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* ── Zone 2: Velocity-linked double-rail marquee ───────────────────────── */}
-      <Marquee row1Items={row1Items} row2Items={row2Items} />
-
-      {/* ── Zone 3: Editorial bio — two-column asymmetric (only when bio exists) */}
-      {data.bio && (
-        <div className="py-28 md:py-40 px-6 md:px-16 border-b border-text-dark/10">
-          <div className="grid md:grid-cols-[1fr_2.5fr] gap-8 md:gap-20">
-            <div className="pt-1">
-              <p
-                className="font-sans text-muted"
-                style={{ fontSize: '9px', letterSpacing: '0.22em' }}
-              >
-                STATEMENT
-              </p>
-            </div>
-            <div
-              className="font-serif italic text-text-dark/70"
+            <p className="font-sans text-[9px] tracking-extreme mb-10" style={{ color: 'rgba(245,245,245,0.35)' }}>
+              ABOUT
+            </p>
+            <p
+              ref={statementRef}
+              className="font-serif text-text-light"
               style={{
-                fontSize: 'clamp(1rem, 1.3vw, 1.25rem)',
-                lineHeight: 1.75,
-                maxWidth: '52ch',
+                fontSize: 'clamp(2.2rem, 7vw, 10rem)',
+                fontStyle: 'italic',
+                fontWeight: 300,
+                lineHeight: 1.06,
+                letterSpacing: '-0.025em',
+                maxWidth: '20ch',
               }}
             >
-              <PortableText value={data.bio} />
+              {data.statement}
+            </p>
+
+            {/* Scroll hint */}
+            <div className="flex items-center gap-4 mt-14">
+              <div className="w-8 h-px" style={{ background: 'rgba(245,245,245,0.2)' }} />
+              <span
+                className="font-sans"
+                style={{ fontSize: '9px', letterSpacing: '0.22em', color: 'rgba(245,245,245,0.35)' }}
+              >
+                SCROLL
+              </span>
             </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="px-6 md:px-16 pt-24 pb-16">
+            <p className="font-sans text-[9px] tracking-extreme mb-10" style={{ color: 'rgba(245,245,245,0.35)' }}>
+              ABOUT
+            </p>
+          </div>
+        )}
+      </div>
 
-      {/* ── Zone 4: Portrait — clip-path reveal, pinned for 180vh of scroll ───── */}
-      {data.portrait && (
-        <PortraitReveal portrait={data.portrait} pullQuote={data.pullQuote} />
-      )}
+      {/* ── Zones 2-6: light background ──────────────────────────────────────── */}
+      <div className="bg-light text-text-dark">
 
-      {/* ── Zone 5: Stats grid — 4 editorial columns, bloom on scroll ────────── */}
-      {data.practice && <StatsGrid practice={data.practice} />}
+        {/* Zone 2: Velocity-linked double-rail marquee */}
+        <Marquee row1Items={row1Items} row2Items={row2Items} />
 
-      {/* ── Zone 6: Discipline list — rows with hover thumbnail reveal ────────── */}
-      {data.practice?.vision?.length > 0 && (
-        <DisciplineList
-          items={data.practice.vision}
-          thumbnail={data.portrait?.asset?.url}
-        />
-      )}
+        {/* Zone 3: Editorial bio — two-column asymmetric (only when bio exists) */}
+        {data.bio && (
+          <div className="py-28 md:py-40 px-6 md:px-16 border-b border-text-dark/10">
+            <div className="grid md:grid-cols-[1fr_2.5fr] gap-8 md:gap-20">
+              <div className="pt-1">
+                <p
+                  className="font-sans text-muted"
+                  style={{ fontSize: '9px', letterSpacing: '0.22em' }}
+                >
+                  STATEMENT
+                </p>
+              </div>
+              <div
+                className="font-serif italic text-text-dark/70"
+                style={{
+                  fontSize: 'clamp(1rem, 1.3vw, 1.25rem)',
+                  lineHeight: 1.75,
+                  maxWidth: '52ch',
+                }}
+              >
+                <PortableText value={data.bio} />
+              </div>
+            </div>
+          </div>
+        )}
 
-      {/* ── Zone 7: Literary clients + typographic CTA (no button) ───────────── */}
+        {/* Zone 4: Portrait — clip-path reveal */}
+        {data.portrait && (
+          <PortraitReveal portrait={data.portrait} pullQuote={data.pullQuote} />
+        )}
+
+        {/* Zone 5: Stats grid — 4 editorial columns */}
+        {data.practice && <StatsGrid practice={data.practice} />}
+
+        {/* Zone 6: Discipline list — rows with hover thumbnail */}
+        {data.practice?.vision?.length > 0 && (
+          <DisciplineList
+            items={data.practice.vision}
+            thumbnail={data.portrait?.asset?.url}
+          />
+        )}
+
+      </div>
+
+      {/* ── Zone 7: CTA — ink background, mirrors home Statement section ──────── */}
       <div
-        className="border-t border-text-dark/10"
+        className="bg-ink text-text-light"
         style={{
           padding: 'clamp(4rem, 8vh, 8rem) clamp(1.5rem, 5vw, 5rem)',
+          borderTop: '1px solid rgba(245,245,245,0.08)',
         }}
       >
-        {/* Clients — like the acknowledgements page of a photo monograph */}
+        {/* Clients sentence */}
         {clientsSentence && (
           <p
-            className="font-serif italic text-text-dark/40 mb-20 md:mb-32"
+            className="font-serif italic mb-20 md:mb-32"
             style={{
               fontSize: 'clamp(0.9rem, 1.1vw, 1.1rem)',
               lineHeight: 1.85,
               maxWidth: '58ch',
+              color: 'rgba(245,245,245,0.4)',
             }}
           >
             {clientsSentence}
           </p>
         )}
 
-        {/* CTA — the entire block is the link; no button, pure display typography */}
+        {/* CTA */}
         <TransitionLink href="/contact" className="group block no-underline">
           <p
-            className="font-serif italic text-text-dark transition-opacity duration-500 group-hover:opacity-45"
+            className="font-serif italic text-text-light transition-opacity duration-500 group-hover:opacity-45"
             style={{
               fontSize: 'clamp(2.5rem, 6vw, 8.5rem)',
               fontWeight: 300,
@@ -177,6 +195,13 @@ export function AboutContent({ data }: { data: any }) {
             begins with a
             <br />
             conversation.&nbsp;→
+          </p>
+          {/* Mobile tap affordance */}
+          <p
+            className="md:hidden font-sans text-[9px] tracking-extreme mt-6"
+            style={{ color: 'rgba(245,245,245,0.4)' }}
+          >
+            GET IN TOUCH →
           </p>
         </TransitionLink>
       </div>

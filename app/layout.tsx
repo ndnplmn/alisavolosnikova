@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Cormorant_Garamond, DM_Sans } from 'next/font/google'
 import './globals.css'
 import { Providers }      from './providers'
-import { Nav }            from '@/components/ui/Nav'
+import { GhostNav }       from '@/components/ui/GhostNav'
 import { ScrollProgress } from '@/components/ui/ScrollProgress'
 
 const cormorant = Cormorant_Garamond({
@@ -37,11 +37,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${cormorant.variable} ${dmSans.variable}`}>
       <body suppressHydrationWarning>
         <Providers>
-          <Nav />
-          {/* All page content is pushed below the fixed nav */}
-          <div style={{ paddingTop: 'var(--nav-h)' }}>
-            {children}
-          </div>
+          <GhostNav />
+          {children}
         </Providers>
         <ScrollProgress />
       </body>

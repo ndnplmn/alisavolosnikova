@@ -6,8 +6,9 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
+// Update these values to match real data
 const STATS = [
-  { value: 12, label: 'SERIES'       },
+  { value: 9,  label: 'SERIES'       },
   { value: 6,  label: 'YEARS ACTIVE' },
   { value: 3,  label: 'CONTINENTS'   },
 ]
@@ -61,9 +62,9 @@ export function SeriesCounter() {
       className="bg-ink px-6 md:px-16 py-20"
       style={{ borderTop: '1px solid rgba(245,245,245,0.08)' }}
     >
-      <div className="flex justify-between items-end">
+      <div className="grid grid-cols-3 gap-4 md:flex md:justify-between md:items-end">
         {STATS.map(({ value, label }, i) => (
-          <div key={label} className="flex items-end gap-8 md:gap-16">
+          <div key={label} className="flex items-end gap-4 md:gap-16">
             {/* Stat */}
             <div>
               <span

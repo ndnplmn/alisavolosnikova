@@ -31,14 +31,18 @@ export function PortraitReveal({ portrait, pullQuote }: PortraitRevealProps) {
     // Start: thin horizontal band at 43% inset top + bottom (14% visible strip)
     gsap.set(frame, { clipPath: 'inset(43% 0 43% 0)' })
 
+    // Skip pin on touch devices (iOS/Android) to avoid scroll jank
+    const isTouch = window.matchMedia('(hover: none)').matches
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: el,
         start: 'top top',
-        end: '+=180vh',
+        end: '+=110vh',
         scrub: 1.5,
-        pin: true,
-        anticipatePin: 1,
+        pin: !isTouch,
+        anticipatePin: isTouch ? 0 : 1,
+        invalidateOnRefresh: true,
       },
     })
 

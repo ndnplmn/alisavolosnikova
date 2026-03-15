@@ -4,7 +4,6 @@ export const contact = defineType({
   name: 'contact',
   title: 'Contact Settings',
   type: 'document',
-  __experimental_actions: ['update', 'publish'],
   fields: [
     defineField({
       name: 'collaborationTypes',

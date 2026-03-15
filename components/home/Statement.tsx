@@ -7,7 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 gsap.registerPlugin(ScrollTrigger)
 
 const QUOTE       = 'She does not capture moments. She selects them.'
-const ATTRIBUTION = 'MOSCOW · EST. 2019'
+const ATTRIBUTION = 'YEKATERINBURG · EST. 2019'
 
 export function Statement() {
   const sectionRef     = useRef<HTMLElement>(null)
@@ -82,11 +82,6 @@ export function Statement() {
       ref={sectionRef}
       className="bg-ink px-6 md:px-16 py-24 md:py-32"
     >
-      {/* Pre-quote label */}
-      <p className="font-sans text-[9px] tracking-extreme text-muted mb-8">
-        АЛИСА ВОЛОСНИКОВА
-      </p>
-
       {/* Quote */}
       <div
         className="font-serif italic text-text-light"

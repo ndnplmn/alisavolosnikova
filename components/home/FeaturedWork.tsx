@@ -284,8 +284,25 @@ export function FeaturedWork({ series }: { series: SeriesItem[] }) {
     gsap.to(followerRef.current, { opacity: 0, scale: 0.88, duration: 0.3, ease: 'power2.in' })
   }, [])
 
-  // Early return AFTER hooks
-  if (series.length === 0) return null
+  // Early return AFTER hooks — show minimal placeholder so page layout doesn't jump
+  if (series.length === 0) {
+    return (
+      <section className="bg-light">
+        <div className="px-6 md:px-16 pt-20 pb-24">
+          <p className="font-sans text-[9px] tracking-extreme text-muted">
+            SELECTED WORK
+          </p>
+          <div style={{ height: '1px', background: 'rgba(10,10,10,0.1)', marginTop: '16px', marginBottom: '48px' }} />
+          <p
+            className="font-serif italic text-text-dark/30"
+            style={{ fontSize: 'clamp(1.8rem, 3vw, 3.5rem)', fontWeight: 300, lineHeight: 1.0 }}
+          >
+            Series coming soon.
+          </p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="bg-light">

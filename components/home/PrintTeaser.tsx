@@ -66,7 +66,7 @@ export function PrintTeaser() {
   return (
     <section
       ref={sectionRef}
-      className="bg-ink px-6 md:px-16 pt-16 pb-32"
+      className="bg-ink px-6 md:px-16 pt-16 pb-16"
       style={{ borderTop: '1px solid rgba(245,245,245,0.08)' }}
     >
       {/* Label */}
@@ -74,50 +74,79 @@ export function PrintTeaser() {
         FINE ART PRINTS
       </p>
 
-      {/* Heading — each line clip-path revealed */}
-      <div
-        className="font-serif italic text-text-light"
-        style={{
-          fontSize:      'clamp(4rem, 8vw, 11rem)',
-          fontWeight:    300,
-          lineHeight:    0.88,
-          letterSpacing: '-0.03em',
-        }}
-        aria-label={HEADING_LINES.join(' ')}
-      >
-        {HEADING_LINES.map((line, i) => (
-          <span
-            key={i}
-            ref={el => { lineRefs.current[i] = el }}
-            style={{ display: 'block' }}
-            aria-hidden="true"
+      {/* Two-column: heading left + print right */}
+      <div className="flex items-start justify-between gap-8">
+
+        {/* Heading — each line clip-path revealed */}
+        <div
+          className="font-serif italic text-text-light flex-1"
+          style={{
+            fontSize:      'clamp(3.5rem, 7vw, 10rem)',
+            fontWeight:    300,
+            lineHeight:    0.88,
+            letterSpacing: '-0.03em',
+          }}
+          aria-label={HEADING_LINES.join(' ')}
+        >
+          {HEADING_LINES.map((line, i) => (
+            <span
+              key={i}
+              ref={el => { lineRefs.current[i] = el }}
+              style={{ display: 'block' }}
+              aria-hidden="true"
+            >
+              {line}
+            </span>
+          ))}
+        </div>
+
+        {/* Print — physical object alongside heading */}
+        <div
+          ref={printRef}
+          className="flex-shrink-0 hidden md:block"
+        >
+          <div
+            style={{
+              position:    'relative',
+              width:       'clamp(160px, 22vw, 320px)',
+              aspectRatio: '2/3',
+              transform:   'rotate(-2.5deg)',
+              boxShadow:   '0 20px 70px rgba(0,0,0,0.7)',
+              overflow:    'hidden',
+            }}
           >
-            {line}
-          </span>
-        ))}
+            <Image
+              src="/images/foto-07.jpg"
+              alt="Fine art print — Алиса Волосникова"
+              fill
+              sizes="22vw"
+              className="object-cover"
+            />
+          </div>
+        </div>
+
       </div>
 
-      {/* Print — physical object visualization */}
+      {/* Print — mobile only (below heading) */}
       <div
-        ref={printRef}
-        className="mt-14 md:mt-20 flex justify-end"
+        ref={undefined}
+        className="mt-10 flex justify-end md:hidden"
       >
         <div
           style={{
-            position:     'relative',
-            width:        'clamp(200px, 34vw, 440px)',
-            aspectRatio:  '2/3',
-            transform:    'rotate(-2.5deg)',
-            boxShadow:    '0 20px 70px rgba(0,0,0,0.7)',
-            overflow:     'hidden',
-            flexShrink:   0,
+            position:    'relative',
+            width:       'clamp(140px, 55vw, 260px)',
+            aspectRatio: '2/3',
+            transform:   'rotate(-2.5deg)',
+            boxShadow:   '0 16px 50px rgba(0,0,0,0.7)',
+            overflow:    'hidden',
           }}
         >
           <Image
-            src="/images/foto-07.png"
+            src="/images/foto-07.jpg"
             alt="Fine art print — Алиса Волосникова"
             fill
-            sizes="(max-width: 768px) 60vw, 34vw"
+            sizes="55vw"
             className="object-cover"
           />
         </div>

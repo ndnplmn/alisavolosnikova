@@ -354,15 +354,16 @@ function PrintCard({
 function ClosingSection() {
   return (
     <div
-      className="px-6 md:px-16 py-24"
-      style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}
+      className="bg-ink px-6 md:px-16 py-24"
+      style={{ borderTop: '1px solid rgba(245,245,245,0.08)' }}
     >
       <p
-        className="font-serif italic text-text-dark/50"
+        className="font-serif italic"
         style={{
           fontSize:   'clamp(1.4rem, 2.2vw, 2.2rem)',
           lineHeight: 1.7,
           maxWidth:   '42ch',
+          color:      'rgba(245,245,245,0.45)',
         }}
       >
         Each print arrives rolled in archival tissue, with a signed
@@ -370,21 +371,21 @@ function ClosingSection() {
       </p>
 
       <div className="mt-10 flex flex-col gap-2">
-        <p className="font-sans text-[9px] tracking-extreme text-muted">
+        <p className="font-sans text-[9px] tracking-extreme" style={{ color: 'rgba(245,245,245,0.3)' }}>
           PRODUCTION TIME: 2–3 WEEKS
         </p>
-        <p className="font-sans text-[9px] tracking-extreme text-muted">
+        <p className="font-sans text-[9px] tracking-extreme" style={{ color: 'rgba(245,245,245,0.3)' }}>
           SHIPS WORLDWIDE · INSURED DELIVERY
         </p>
       </div>
 
       <div
         className="mt-16 pt-16"
-        style={{ borderTop: '1px solid rgba(10,10,10,0.1)' }}
+        style={{ borderTop: '1px solid rgba(245,245,245,0.08)' }}
       >
         <TransitionLink
           href="/"
-          className="font-serif italic text-text-dark transition-opacity duration-500 hover:opacity-45"
+          className="font-serif italic text-text-light transition-opacity duration-500 hover:opacity-45"
           style={{
             fontSize:      'clamp(2.5rem, 5vw, 6rem)',
             fontWeight:    300,

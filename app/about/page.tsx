@@ -5,7 +5,7 @@ import { AboutContent } from '@/components/about/AboutContent'
 export const revalidate = 3600
 
 const PLACEHOLDER_DATA = {
-  portrait: { asset: { url: '/images/foto-09.png', metadata: { lqip: null, dimensions: { width: 900, height: 1200 } } } },
+  portrait: { asset: { url: '/images/foto-09.jpg', metadata: { lqip: null, dimensions: { width: 900, height: 1200 } } } },
   statement: 'I photograph the quiet spaces between moments — the pause before the shutter, the light that lingers after the subject has gone.',
   bio: null,
   pullQuote: 'Every image is a question the world has not yet answered.',
