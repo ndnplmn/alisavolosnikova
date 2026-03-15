@@ -37,12 +37,14 @@ export function PageTransitionProvider({ children }: { children: ReactNode }) {
 import type { ReactNode as RN } from 'react'
 
 type TransitionLinkProps = {
-  href:           string
-  children:       RN
-  className?:     string
-  style?:         React.CSSProperties
-  'data-cursor'?: string
-  onClick?:       () => void
+  href:            string
+  children:        RN
+  className?:      string
+  style?:          React.CSSProperties
+  'data-cursor'?:  string
+  onClick?:        () => void
+  onMouseEnter?:   (e: React.MouseEvent<HTMLAnchorElement>) => void
+  onMouseLeave?:   (e: React.MouseEvent<HTMLAnchorElement>) => void
 }
 
 export function TransitionLink({
