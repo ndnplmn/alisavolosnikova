@@ -76,6 +76,7 @@ function FilterBar({
     if (indicatorRef.current) {
       gsap.to(indicatorRef.current, { backgroundColor: colors.text, duration: 0.4 })
     }
+    return () => { gsap.killTweensOf(indicatorRef.current) }
   }, [mode, colors.text])
 
   return (
@@ -157,7 +158,7 @@ export function Hero() {
       opacity: 0, y: -5, duration: 0.18, ease: 'power2.in',
       onComplete: () => {
         if (titleRef.current)   titleRef.current.textContent   = photo.title
-        if (descRef.current)    descRef.current.textContent    = photo[langRef.current as 'en' | 'ru']
+        if (descRef.current)    descRef.current.textContent    = photo[langRef.current]
         if (metaRef.current)    metaRef.current.textContent    = photo.series
           ? `${photo.series} · ${photo.year}`
           : photo.year
@@ -186,7 +187,7 @@ export function Hero() {
 
   // ── ScrollTriggers + Lenis snap ──
   useEffect(() => {
-    photoRefs.current.length = filteredPhotos.length
+    photoRefs.current = []
 
     let lastSnapAt = 0
     const snapTo = (el: HTMLElement) => {
