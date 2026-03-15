@@ -107,6 +107,7 @@ export function Hero() {
   const [filter,     setFilter]     = useState<Filter>('ALL')
   const [isMobile,   setIsMobile]   = useState(false)
   const [activeMode, setActiveMode] = useState<PhotoMode>(PHOTOS[0].mode)
+  const [activeSlug, setActiveSlug] = useState<string>(PHOTOS[0].slug)
 
   const filteredPhotos    = filter === 'ALL' ? PHOTOS
     : PHOTOS.filter(p => filter === 'B&W' ? p.mode === 'dark' : p.mode === 'light')
@@ -120,7 +121,6 @@ export function Hero() {
   const metaRef     = useRef<HTMLParagraphElement>(null)
   const locRef      = useRef<HTMLParagraphElement>(null)
   const counterRef  = useRef<HTMLSpanElement>(null)
-  const viewLinkWrapRef = useRef<HTMLDivElement>(null)
   const activeIdxRef    = useRef(0)
 
   // All primary-text elements (animated between #0A0A0A and #F5F5F5)
@@ -164,11 +164,7 @@ export function Hero() {
         if (locRef.current)     locRef.current.textContent     = photo.location
         if (counterRef.current) counterRef.current.textContent = String(i + 1).padStart(2, '0')
 
-        // Update VIEW SERIES link href
-        if (viewLinkWrapRef.current) {
-          const a = viewLinkWrapRef.current.querySelector('a')
-          if (a) a.href = `/work/${photo.slug}`
-        }
+        setActiveSlug(photo.slug)
 
         // Instant color change while invisible, then fade in
         gsap.set(textEls, { color: colors.text })
@@ -373,7 +369,7 @@ export function Hero() {
                 whiteSpace: 'pre-line',
               }}
             >
-              {filteredPhotos[0]?.en ?? ''}
+              {filteredPhotos[0]?.[lang as 'en' | 'ru'] ?? ''}
             </p>
             <p
               ref={el => { locRef.current = el; primaryTextRefs.current[3] = el }}
@@ -411,16 +407,14 @@ export function Hero() {
                 / {String(filteredPhotos.length).padStart(2, '0')}
               </span>
             </div>
-            <div ref={viewLinkWrapRef}>
-              <TransitionLink
-                href={`/work/${filteredPhotos[0]?.slug ?? ''}`}
-                data-cursor="link"
-                className="font-sans text-[9px] tracking-extreme transition-opacity duration-300 hover:opacity-40"
-                style={{ color: colors.text }}
-              >
-                VIEW SERIES →
-              </TransitionLink>
-            </div>
+            <TransitionLink
+              href={`/work/${activeSlug}`}
+              data-cursor="link"
+              className="font-sans text-[9px] tracking-extreme transition-opacity duration-300 hover:opacity-40"
+              style={{ color: colors.text }}
+            >
+              VIEW SERIES →
+            </TransitionLink>
           </div>
         </div>
       </div>
