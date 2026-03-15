@@ -3,12 +3,14 @@ import { CTAButton } from '@/components/ui/CTAButton'
 import { getBlurDataURL } from '@/lib/sanity/image'
 
 interface PrintTeaserProps {
-  imageUrl: string
+  imageUrl?: string
   imageAlt?: string
   blurDataURL?: string
 }
 
 export function PrintTeaser({ imageUrl, imageAlt = 'Fine art print', blurDataURL }: PrintTeaserProps) {
+  if (!imageUrl) return null
+
   return (
     <section className="bg-dark">
       {/* Full-bleed editorial image */}
