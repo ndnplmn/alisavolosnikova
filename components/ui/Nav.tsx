@@ -4,8 +4,6 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { TransitionLink } from '@/components/ui/PageTransition'
-import { useViewMode } from '@/contexts/ViewModeContext'
-
 const NAV_ITEMS = [
   { label: 'ABOUT',   href: '/about'   },
   { label: 'PRINTS',  href: '/prints'  },
@@ -18,9 +16,6 @@ export function Nav() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const closeRef  = useRef<HTMLButtonElement>(null)
   const burgerRef = useRef<HTMLButtonElement>(null)
-  const { viewMode, setViewMode } = useViewMode()
-  const isHome = pathname === '/'
-
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + '/')
 
@@ -90,23 +85,6 @@ export function Nav() {
         >
           Алиса Волосникова
         </Link>
-
-        {/* GRID / LIST toggle — home only, centered */}
-        {isHome && (
-          <div className="hidden md:flex gap-5 absolute left-1/2 -translate-x-1/2">
-            {(['GRID', 'LIST'] as const).map(v => (
-              <button
-                key={v}
-                onClick={() => setViewMode(v)}
-                data-cursor="link"
-                className="font-sans text-[9px] tracking-[0.2em] text-ink transition-opacity duration-200"
-                style={{ opacity: viewMode === v ? 1 : 0.3 }}
-              >
-                {v}
-              </button>
-            ))}
-          </div>
-        )}
 
         {/* Desktop links */}
         <ul className="hidden md:flex gap-8 list-none m-0 p-0">
