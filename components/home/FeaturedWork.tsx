@@ -1,7 +1,7 @@
 // components/home/FeaturedWork.tsx
 'use client'
 import Image from 'next/image'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { urlFor, getBlurDataURL } from '@/lib/sanity/image'
@@ -61,7 +61,17 @@ function SeriesMarquee({ series }: { series: SeriesItem[] }) {
 }
 
 // ─── Series row ───────────────────────────────────────────────────────────────
-function SeriesRow({ series, index }: { series: SeriesItem; index: number }) {
+function SeriesRow({
+  series,
+  index,
+  onHoverEnter,
+  onHoverLeave,
+}: {
+  series:       SeriesItem
+  index:        number
+  onHoverEnter: (src: string, alt: string) => void
+  onHoverLeave: () => void
+}) {
   const rowRef  = useRef<HTMLDivElement>(null)
   const imgRef  = useRef<HTMLDivElement>(null)
   const textRef = useRef<HTMLDivElement>(null)
@@ -111,9 +121,11 @@ function SeriesRow({ series, index }: { series: SeriesItem; index: number }) {
       style={{ borderBottom: '1px solid rgba(10,10,10,0.08)' }}
       onMouseEnter={() => {
         if (imgRef.current) gsap.to(imgRef.current.querySelector('img'), { filter: 'saturate(0.75)', duration: 0.4 })
+        if (imageUrl) onHoverEnter(imageUrl, series.title)
       }}
       onMouseLeave={() => {
         if (imgRef.current) gsap.to(imgRef.current.querySelector('img'), { filter: 'saturate(1)', duration: 0.4 })
+        onHoverLeave()
       }}
     >
       {/* Image — 55% */}
@@ -196,6 +208,44 @@ function SeriesRow({ series, index }: { series: SeriesItem; index: number }) {
 
 // ─── FeaturedWork ─────────────────────────────────────────────────────────────
 export function FeaturedWork({ series }: { series: SeriesItem[] }) {
+  const followerRef = useRef<HTMLDivElement>(null)
+  const [followerImg, setFollowerImg] = useState<{ src: string; alt: string } | null>(null)
+  const isPointerRef = useRef(false)
+
+  // Mouse tracking — only on pointer-fine devices
+  useEffect(() => {
+    isPointerRef.current = window.matchMedia('(hover: fine)').matches
+    if (!isPointerRef.current) return
+
+    const el = followerRef.current
+    if (!el) return
+
+    gsap.set(el, { opacity: 0, scale: 0.88 })
+
+    const quickX = gsap.quickTo(el, 'x', { duration: 0.55, ease: 'power3.out' })
+    const quickY = gsap.quickTo(el, 'y', { duration: 0.55, ease: 'power3.out' })
+
+    const onMove = (e: MouseEvent) => {
+      quickX(e.clientX + 20)
+      quickY(e.clientY - 180)
+    }
+    window.addEventListener('mousemove', onMove)
+    return () => window.removeEventListener('mousemove', onMove)
+  }, [])
+
+  const showFollower = useCallback((src: string, alt: string) => {
+    if (!isPointerRef.current) return
+    setFollowerImg({ src, alt })
+    if (!followerRef.current) return
+    gsap.to(followerRef.current, { opacity: 1, scale: 1, duration: 0.4, ease: 'power2.out' })
+  }, [])
+
+  const hideFollower = useCallback(() => {
+    if (!followerRef.current) return
+    gsap.to(followerRef.current, { opacity: 0, scale: 0.88, duration: 0.3, ease: 'power2.in' })
+  }, [])
+
+  // Early return AFTER hooks
   if (series.length === 0) return null
 
   return (
@@ -214,8 +264,37 @@ export function FeaturedWork({ series }: { series: SeriesItem[] }) {
       {/* Editorial series list */}
       <div className="px-6 md:px-16 pb-24">
         {series.map((s, i) => (
-          <SeriesRow key={s._id} series={s} index={i} />
+          <SeriesRow
+            key={s._id}
+            series={s}
+            index={i}
+            onHoverEnter={showFollower}
+            onHoverLeave={hideFollower}
+          />
         ))}
+      </div>
+
+      {/* ── Cursor image follower ─────────────────────────────────────────── */}
+      <div
+        ref={followerRef}
+        aria-hidden="true"
+        className="fixed top-0 left-0 pointer-events-none overflow-hidden"
+        style={{
+          width:       '260px',
+          height:      '175px',
+          zIndex:      200,
+          willChange:  'transform',
+        }}
+      >
+        {followerImg && (
+          <Image
+            src={followerImg.src}
+            alt={followerImg.alt}
+            fill
+            sizes="260px"
+            className="object-cover"
+          />
+        )}
       </div>
     </section>
   )
