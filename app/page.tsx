@@ -10,8 +10,10 @@ import { PrintTeaser }   from '@/components/home/PrintTeaser'
 export const revalidate = 3600
 
 export default async function HomePage() {
-  let series: any[] = []
-  try { series = await client.fetch(ALL_SERIES_QUERY) ?? [] } catch {}
+  let series: any[] = [] // typed as SeriesItem[] after Task 5 exports it
+  try { series = await client.fetch(ALL_SERIES_QUERY) ?? [] } catch (err) {
+    console.error('[HomePage] Failed to fetch series:', err)
+  }
 
   return (
     <main>
