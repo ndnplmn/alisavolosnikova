@@ -1,5 +1,6 @@
 // components/home/PrintTeaser.tsx
 'use client'
+import Image from 'next/image'
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -13,6 +14,7 @@ export function PrintTeaser() {
   const sectionRef  = useRef<HTMLElement>(null)
   const lineRefs    = useRef<(HTMLSpanElement | null)[]>([])
   const bottomRef   = useRef<HTMLDivElement>(null)
+  const printRef    = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const section = sectionRef.current
@@ -22,8 +24,11 @@ export function PrintTeaser() {
     const lines = lineRefs.current.filter(Boolean) as HTMLElement[]
     if (lines.length === 0) return
 
+    const print = printRef.current   // ← capture here
+
     gsap.set(lines,  { clipPath: 'inset(0 100% 0 0)' })
     gsap.set(bottom, { opacity: 0, y: 8 })
+    if (print) gsap.set(print, { opacity: 0, y: 28 })
 
     const st = ScrollTrigger.create({
       trigger: section,
@@ -42,6 +47,13 @@ export function PrintTeaser() {
           duration: 0.6,
           ease:     'power2.out',
           delay:    lines.length * 0.15 + 0.3,
+        })
+        if (print) gsap.to(print, {
+          opacity:  1,
+          y:        0,
+          duration: 1.0,
+          ease:     'power2.out',
+          delay:    lines.length * 0.15 + 0.9,
         })
       },
     })
@@ -85,9 +97,35 @@ export function PrintTeaser() {
         ))}
       </div>
 
+      {/* Print — physical object visualization */}
+      <div
+        ref={printRef}
+        className="mt-14 md:mt-20 flex justify-end"
+      >
+        <div
+          style={{
+            position:     'relative',
+            width:        'clamp(200px, 34vw, 440px)',
+            aspectRatio:  '2/3',
+            transform:    'rotate(-2.5deg)',
+            boxShadow:    '0 20px 70px rgba(0,0,0,0.7)',
+            overflow:     'hidden',
+            flexShrink:   0,
+          }}
+        >
+          <Image
+            src="/images/foto-07.png"
+            alt="Fine art print — Алиса Волосникова"
+            fill
+            sizes="(max-width: 768px) 60vw, 34vw"
+            className="object-cover"
+          />
+        </div>
+      </div>
+
       {/* Divider */}
       <div
-        style={{ height: '1px', background: 'rgba(245,245,245,0.08)', marginTop: '5rem' }}
+        style={{ height: '1px', background: 'rgba(245,245,245,0.08)', marginTop: '3.5rem' }}
       />
 
       {/* Bottom row */}
