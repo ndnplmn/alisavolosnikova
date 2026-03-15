@@ -165,7 +165,7 @@ export function PageLoader() {
           right:              '2.5rem',
           fontSize:           '9px',
           letterSpacing:      '0.2em',
-          color:              'rgba(232,228,223,0.35)',
+          color:              'rgba(245,245,245,0.35)',
           fontVariantNumeric: 'tabular-nums',
         }}
       >
