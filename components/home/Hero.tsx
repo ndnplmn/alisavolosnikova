@@ -124,6 +124,12 @@ export function Hero() {
   const counterRef  = useRef<HTMLSpanElement>(null)
   const activeIdxRef    = useRef(0)
 
+  // ── Entrance choreography refs (desktop only) ──
+  const photosColRef = useRef<HTMLDivElement>(null)
+  const panelTopRef  = useRef<HTMLDivElement>(null)
+  const panelMidRef  = useRef<HTMLDivElement>(null)
+  const panelBotRef  = useRef<HTMLDivElement>(null)
+
   // All primary-text elements (animated between #0A0A0A and #F5F5F5)
   const primaryTextRefs = useRef<(HTMLElement | null)[]>([])
 
@@ -184,6 +190,33 @@ export function Hero() {
     updatePanel(activeIdxRef.current)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang])
+
+  // ── Hero entrance choreography (first-load, desktop only) ──────────────────
+  useEffect(() => {
+    if (isMobile) return
+    // sessionStorage is client-only — safe in useEffect
+    if (sessionStorage.getItem('av-loader-shown')) return
+
+    const photos = photosColRef.current
+    const top    = panelTopRef.current
+    const mid    = panelMidRef.current
+    const bot    = panelBotRef.current
+    if (!photos || !top || !mid || !bot) return
+
+    // Loader covers the page so no flash — set initial hidden state now
+    gsap.set(photos, { opacity: 0 })
+    gsap.set([top, mid, bot], { opacity: 0, y: 14 })
+
+    const onDone = () => {
+      gsap.to(photos, { opacity: 1, duration: 1.0, ease: 'power2.inOut' })
+      gsap.to(top,    { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out', delay: 0.08 })
+      gsap.to(mid,    { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out', delay: 0.2 })
+      gsap.to(bot,    { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out', delay: 0.34 })
+    }
+
+    window.addEventListener('av:loader-done', onDone, { once: true })
+    return () => window.removeEventListener('av:loader-done', onDone)
+  }, [isMobile])
 
   // ── ScrollTriggers + Lenis snap ──
   useEffect(() => {
@@ -288,7 +321,7 @@ export function Hero() {
   return (
     <div className="flex">
       {/* Left: photo sequence — 70% */}
-      <div className="w-[70%] flex-shrink-0">
+      <div ref={photosColRef} className="w-[70%] flex-shrink-0">
         {filteredPhotos.map((photo, i) => (
           <div
             key={photo.slug}
@@ -324,7 +357,7 @@ export function Hero() {
           }}
         >
           {/* TOP: artist name + rule + filter */}
-          <div className="px-8 pt-10">
+          <div ref={panelTopRef} className="px-8 pt-10">
             <p className="font-sans text-[9px] tracking-extreme" style={{ color: colors.muted }}>
               АЛИСА ВОЛОСНИКОВА
             </p>
@@ -334,7 +367,7 @@ export function Hero() {
           </div>
 
           {/* MIDDLE: series/year + title + description + location */}
-          <div className="px-8 flex flex-col gap-3 flex-1 justify-center">
+          <div ref={panelMidRef} className="px-8 flex flex-col gap-3 flex-1 justify-center">
             <p
               ref={el => { metaRef.current = el; primaryTextRefs.current[0] = el }}
               className="font-sans text-[9px] tracking-extreme"
@@ -382,7 +415,7 @@ export function Hero() {
           </div>
 
           {/* BOTTOM: watermark counter + view link */}
-          <div className="px-8 pb-10">
+          <div ref={panelBotRef} className="px-8 pb-10">
             <div style={{ lineHeight: 0.85, marginBottom: '24px' }}>
               <span
                 ref={el => { counterRef.current = el; primaryTextRefs.current[4] = el }}

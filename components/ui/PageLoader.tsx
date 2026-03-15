@@ -59,6 +59,7 @@ export function PageLoader() {
       delay: 0.2,
       onComplete: () => {
         sessionStorage.setItem('av-loader-shown', '1')
+        window.dispatchEvent(new CustomEvent('av:loader-done'))
         setVisible(false)
       },
     })
