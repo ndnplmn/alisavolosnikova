@@ -2,6 +2,7 @@
 import { client }           from '@/lib/sanity/client'
 import { ALL_PRINTS_QUERY } from '@/lib/sanity/queries'
 import { PrintGrid }        from '@/components/prints/PrintGrid'
+import { PageHero }         from '@/components/ui/PageHero'
 export const revalidate = 3600
 
 const PLACEHOLDER_PRINTS = [
@@ -82,35 +83,25 @@ export default async function PrintsPage() {
   return (
     <div>
       {/* ── Header — ink background ─────────────────────────────── */}
-      <div className="bg-ink text-text-light px-6 md:px-16 pt-24 pb-16">
-        <p className="font-sans text-[9px] tracking-extreme mb-10" style={{ color: 'rgba(245,245,245,0.35)' }}>
-          FINE ART PRINTS
-        </p>
-        <h1
-          className="font-serif italic text-text-light"
-          style={{
-            fontSize:      'clamp(4rem, 9vw, 12rem)',
-            fontWeight:    300,
-            lineHeight:    0.88,
-            letterSpacing: '-0.03em',
-          }}
-        >
-          Limited<br />Editions.
-        </h1>
-        <div
-          className="flex flex-wrap items-center justify-between gap-4 mt-10 pt-6"
-          style={{ borderTop: '1px solid rgba(245,245,245,0.1)' }}
-        >
-          <p className="font-sans text-[9px] tracking-extreme" style={{ color: 'rgba(245,245,245,0.35)' }}>
-            ARCHIVAL PIGMENT · SIGNED &amp; NUMBERED · PRODUCED TO ORDER
-          </p>
-          {availableEditions > 0 && (
+      <PageHero
+        label="FINE ART PRINTS"
+        headline={"Limited\nEditions."}
+        bottom={
+          <div
+            className="flex flex-wrap items-center justify-between gap-4 pt-6"
+            style={{ borderTop: '1px solid rgba(245,245,245,0.1)' }}
+          >
             <p className="font-sans text-[9px] tracking-extreme" style={{ color: 'rgba(245,245,245,0.35)' }}>
-              {availableEditions} EDITION{availableEditions !== 1 ? 'S' : ''} AVAILABLE
+              ARCHIVAL PIGMENT · SIGNED &amp; NUMBERED · PRODUCED TO ORDER
             </p>
-          )}
-        </div>
-      </div>
+            {availableEditions > 0 && (
+              <p className="font-sans text-[9px] tracking-extreme" style={{ color: 'rgba(245,245,245,0.35)' }}>
+                {availableEditions} EDITION{availableEditions !== 1 ? 'S' : ''} AVAILABLE
+              </p>
+            )}
+          </div>
+        }
+      />
 
       {/* ── Grid — light background ─────────────────────────────── */}
       <div className="bg-light text-text-dark">

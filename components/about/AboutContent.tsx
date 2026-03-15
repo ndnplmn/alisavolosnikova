@@ -1,43 +1,18 @@
 // components/about/AboutContent.tsx
 'use client'
-import { useRef, useEffect } from 'react'
 import { gsap } from 'gsap'
-// @ts-ignore
-import { SplitText } from 'gsap/SplitText'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { PortableText } from '@portabletext/react'
 import { TransitionLink } from '@/components/ui/PageTransition'
+import { PageHero } from '@/components/ui/PageHero'
 import { Marquee } from './Marquee'
 import { PortraitReveal } from './PortraitReveal'
 import { StatsGrid } from './StatsGrid'
 import { DisciplineList } from './DisciplineList'
 
-gsap.registerPlugin(SplitText, ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger)
 
 export function AboutContent({ data }: { data: any }) {
-  const statementRef = useRef<HTMLParagraphElement>(null)
-
-  useEffect(() => {
-    const el = statementRef.current
-    if (!el) return
-
-    // Page-load mask reveal — words rise from below overflow:hidden clip
-    const split = new SplitText(el, { type: 'words' })
-    gsap.set(split.words, { yPercent: 110, opacity: 0 })
-    const anim = gsap.to(split.words, {
-      yPercent: 0,
-      opacity: 1,
-      duration: 1.05,
-      ease: 'power3.out',
-      stagger: 0.055,
-      delay: 0.15,
-    })
-
-    return () => {
-      split.revert()
-      anim.kill()
-    }
-  }, [])
 
   // Marquee content from practice + clients
   const row1Items = [
@@ -58,53 +33,19 @@ export function AboutContent({ data }: { data: any }) {
   return (
     <div>
 
-      {/* ── Zone 1: Statement — ink background, full viewport, page-load reveal ─ */}
-      <div className="bg-ink text-text-light">
-        {data.statement ? (
-          <div
-            className="min-h-screen flex flex-col justify-end"
-            style={{
-              padding: 'clamp(2rem, 5vw, 5rem)',
-              paddingBottom: 'clamp(3rem, 10vh, 8rem)',
-            }}
-          >
-            <p className="font-sans text-[9px] tracking-extreme mb-10" style={{ color: 'rgba(245,245,245,0.35)' }}>
-              ABOUT
-            </p>
-            <p
-              ref={statementRef}
-              className="font-serif text-text-light"
-              style={{
-                fontSize: 'clamp(2.2rem, 7vw, 10rem)',
-                fontStyle: 'italic',
-                fontWeight: 300,
-                lineHeight: 1.06,
-                letterSpacing: '-0.025em',
-                maxWidth: '20ch',
-              }}
-            >
-              {data.statement}
-            </p>
-
-            {/* Scroll hint */}
-            <div className="flex items-center gap-4 mt-14">
-              <div className="w-8 h-px" style={{ background: 'rgba(245,245,245,0.2)' }} />
-              <span
-                className="font-sans"
-                style={{ fontSize: '9px', letterSpacing: '0.22em', color: 'rgba(245,245,245,0.35)' }}
-              >
-                SCROLL
-              </span>
-            </div>
+      {/* ── Zone 1: Statement — ink background ─────────────────────────────────── */}
+      <PageHero
+        label="ABOUT"
+        headline={data.statement ?? ''}
+        bottom={
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-px" style={{ background: 'rgba(245,245,245,0.2)' }} />
+            <span className="font-sans" style={{ fontSize: '9px', letterSpacing: '0.22em', color: 'rgba(245,245,245,0.35)' }}>
+              SCROLL
+            </span>
           </div>
-        ) : (
-          <div className="px-6 md:px-16 pt-24 pb-16">
-            <p className="font-sans text-[9px] tracking-extreme mb-10" style={{ color: 'rgba(245,245,245,0.35)' }}>
-              ABOUT
-            </p>
-          </div>
-        )}
-      </div>
+        }
+      />
 
       {/* ── Zones 2-6: light background ──────────────────────────────────────── */}
       <div className="bg-light text-text-dark">

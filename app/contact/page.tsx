@@ -3,6 +3,7 @@ import { client } from '@/lib/sanity/client'
 import { CONTACT_QUERY } from '@/lib/sanity/queries'
 import { ContactForm } from '@/components/contact/ContactForm'
 import { CopyButton } from '@/components/contact/CopyButton'
+import { PageHero } from '@/components/ui/PageHero'
 export const revalidate = 3600
 
 export default async function ContactPage({ searchParams }: { searchParams: Promise<{ print?: string }> }) {
@@ -17,29 +18,15 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
   return (
     <div>
       {/* ── Header — ink background ─────────────────────────────── */}
-      <div className="bg-ink text-text-light px-6 md:px-16 pt-24 pb-20">
-        <p className="font-sans text-[9px] tracking-extreme mb-10" style={{ color: 'rgba(245,245,245,0.35)' }}>
-          CONTACT
-        </p>
-        <h1
-          className="font-serif italic text-text-light"
-          style={{
-            fontSize:      'clamp(2.8rem, 6vw, 8rem)',
-            fontWeight:    300,
-            lineHeight:    0.95,
-            letterSpacing: '-0.025em',
-            maxWidth:      '18ch',
-          }}
-        >
-          Every great image begins with a conversation.
-        </h1>
-        <p
-          className="font-sans text-[9px] tracking-extreme mt-10"
-          style={{ color: 'rgba(245,245,245,0.35)' }}
-        >
-          AVAILABLE FOR COMMISSIONED WORK · EXHIBITIONS · EDITORIAL
-        </p>
-      </div>
+      <PageHero
+        label="CONTACT"
+        headline="Every great image begins with a conversation."
+        bottom={
+          <p className="font-sans text-[9px] tracking-extreme" style={{ color: 'rgba(245,245,245,0.35)' }}>
+            AVAILABLE FOR COMMISSIONED WORK · EXHIBITIONS · EDITORIAL
+          </p>
+        }
+      />
 
       {/* ── Form — light background ──────────────────────────────── */}
       <div className="bg-light text-text-dark px-6 md:px-16 pt-16 pb-32">
