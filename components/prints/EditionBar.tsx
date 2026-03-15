@@ -14,10 +14,10 @@ interface EditionBarProps {
 }
 
 export function EditionBar({ editionSize, editionsSold, animDelay = 0 }: EditionBarProps) {
+  if (editionSize <= 0) return null
+
   const wrapperRef = useRef<HTMLDivElement>(null)
   const fillRef    = useRef<HTMLDivElement>(null)
-
-  if (editionSize <= 0) return null
   const sold       = Math.min(editionsSold, editionSize)
   const editionsLeft = editionSize - sold
   const isSoldOut  = editionsLeft === 0
