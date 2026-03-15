@@ -1,48 +1,135 @@
+// components/home/Hero.tsx
 'use client'
 import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
-import { flushSync } from 'react-dom'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { TransitionLink } from '@/components/ui/PageTransition'
 import { getLenis } from '@/hooks/useLenis'
 import { useLang } from '@/contexts/LanguageContext'
-import { useViewMode } from '@/contexts/ViewModeContext'
 
 gsap.registerPlugin(ScrollTrigger)
 
-type Filter = 'ALL' | 'B&W' | 'COLOR'
+type Filter    = 'ALL' | 'B&W' | 'COLOR'
+type PhotoMode = 'dark' | 'light'
 
+// ─── Panel color tokens per mode ──────────────────────────────────────────────
+const PANEL_COLORS: Record<PhotoMode, {
+  bg: string; text: string; rule: string; muted: string; watermark: string
+}> = {
+  dark:  { bg: '#0A0A0A', text: '#F5F5F5', rule: 'rgba(245,245,245,0.12)', muted: 'rgba(245,245,245,0.45)', watermark: 'rgba(245,245,245,0.07)' },
+  light: { bg: '#F5F5F5', text: '#0A0A0A', rule: 'rgba(10,10,10,0.1)',     muted: 'rgba(10,10,10,0.40)',   watermark: 'rgba(10,10,10,0.07)'      },
+}
+
+const FILTERS = ['ALL', 'B&W', 'COLOR'] as const
+
+// ─── Photo data ───────────────────────────────────────────────────────────────
 const PHOTOS = [
-  { src: '/images/foto-01.png', slug: 'oblique-light',     position: 'center 30%',  mode: 'dark'  as const, location: 'Moscow · 2024',            en: 'Oblique light on skin.\nSilence has texture.',              ru: 'Косой свет на коже.\nТишина имеет фактуру.' },
-  { src: '/images/foto-02.png', slug: 'between-breaths',   position: 'center center', mode: 'dark'  as const, location: 'Saint Petersburg · 2024',  en: 'A pause between two breaths.\nNothing moves.',              ru: 'Пауза между двумя вдохами.\nНичто не движется.' },
-  { src: '/images/foto-03.png', slug: 'body-as-landscape', position: 'center 40%',  mode: 'light' as const, location: 'Tbilisi · 2023',           en: 'The body as landscape.\nShadow is its geography.',          ru: 'Тело как пейзаж.\nТень — его география.' },
-  { src: '/images/foto-04.png', slug: 'suspended-instant', position: 'center center', mode: 'dark'  as const, location: 'Moscow · 2025',            en: 'A suspended instant.\nTime does not advance here.',         ru: 'Застывший миг.\nВремя здесь не движется.' },
-  { src: '/images/foto-05.png', slug: 'fragment-real',     position: 'center 35%',  mode: 'light' as const, location: 'Helsinki · 2024',          en: 'A fragment of the real.\nEverything else is noise.',        ru: 'Фрагмент реального.\nВсё остальное — шум.' },
-  { src: '/images/foto-06.png', slug: 'light-reveals',     position: 'center center', mode: 'dark'  as const, location: 'Yerevan · 2023',           en: 'Light does not illuminate —\nit reveals what was already there.', ru: 'Свет не освещает —\nон открывает то, что уже было.' },
-  { src: '/images/foto-07.png', slug: 'active-stillness',  position: 'center 40%',  mode: 'light' as const, location: 'Moscow · 2025',            en: 'Active stillness.\nThe image breathes on its own.',         ru: 'Активная тишина.\nОбраз дышит сам по себе.' },
-  { src: '/images/foto-08.png', slug: 'between-form',      position: 'center center', mode: 'dark'  as const, location: 'Riga · 2024',              en: 'Between form and its absence.\nA threshold zone.',          ru: 'Между формой и её отсутствием.\nПограничная зона.' },
-  { src: '/images/foto-09.png', slug: 'last-frame',        position: 'center 30%',  mode: 'light' as const, location: 'Saint Petersburg · 2025',  en: 'The last frame.\nThe visible dissolves.',                   ru: 'Последний кадр.\nВидимое растворяется.' },
+  { src: '/images/foto-01.png', slug: 'oblique-light',     title: 'Oblique Light',        series: '', year: '2024', position: 'center 30%',    mode: 'dark'  as const, location: 'Moscow · 2024',           en: 'Oblique light on skin.\nSilence has texture.',                     ru: 'Косой свет на коже.\nТишина имеет фактуру.' },
+  { src: '/images/foto-02.png', slug: 'between-breaths',   title: 'Between Breaths',      series: '', year: '2024', position: 'center center',  mode: 'dark'  as const, location: 'Saint Petersburg · 2024', en: 'A pause between two breaths.\nNothing moves.',                     ru: 'Пауза между двумя вдохами.\nНичто не движется.' },
+  { src: '/images/foto-03.png', slug: 'body-as-landscape', title: 'Body as Landscape',    series: '', year: '2023', position: 'center 40%',    mode: 'light' as const, location: 'Tbilisi · 2023',          en: 'The body as landscape.\nShadow is its geography.',                ru: 'Тело как пейзаж.\nТень — его география.' },
+  { src: '/images/foto-04.png', slug: 'suspended-instant', title: 'Suspended Instant',    series: '', year: '2025', position: 'center center',  mode: 'dark'  as const, location: 'Moscow · 2025',           en: 'A suspended instant.\nTime does not advance here.',               ru: 'Застывший миг.\nВремя здесь не движется.' },
+  { src: '/images/foto-05.png', slug: 'fragment-real',     title: 'Fragment of the Real', series: '', year: '2024', position: 'center 35%',    mode: 'light' as const, location: 'Helsinki · 2024',         en: 'A fragment of the real.\nEverything else is noise.',              ru: 'Фрагмент реального.\nВсё остальное — шум.' },
+  { src: '/images/foto-06.png', slug: 'light-reveals',     title: 'Light Reveals',        series: '', year: '2023', position: 'center center',  mode: 'dark'  as const, location: 'Yerevan · 2023',          en: 'Light does not illuminate —\nit reveals what was already there.', ru: 'Свет не освещает —\nон открывает то, что уже было.' },
+  { src: '/images/foto-07.png', slug: 'active-stillness',  title: 'Active Stillness',     series: '', year: '2025', position: 'center 40%',    mode: 'light' as const, location: 'Moscow · 2025',           en: 'Active stillness.\nThe image breathes on its own.',              ru: 'Активная тишина.\nОбраз дышит сам по себе.' },
+  { src: '/images/foto-08.png', slug: 'between-form',      title: 'Between Form',         series: '', year: '2024', position: 'center center',  mode: 'dark'  as const, location: 'Riga · 2024',             en: 'Between form and its absence.\nA threshold zone.',               ru: 'Между формой и её отсутствием.\nПограничная зона.' },
+  { src: '/images/foto-09.png', slug: 'last-frame',        title: 'Last Frame',           series: '', year: '2025', position: 'center 30%',    mode: 'light' as const, location: 'Saint Petersburg · 2025', en: 'The last frame.\nThe visible dissolves.',                         ru: 'Последний кадр.\nВидимое растворяется.' },
 ]
 
-const TOTAL = PHOTOS.length
+// ─── FilterBar ────────────────────────────────────────────────────────────────
+function FilterBar({
+  filter,
+  onChange,
+  mode,
+}: {
+  filter:   Filter
+  onChange: (f: Filter) => void
+  mode:     PhotoMode
+}) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const indicatorRef = useRef<HTMLDivElement>(null)
+  const buttonRefs   = useRef<(HTMLButtonElement | null)[]>([])
+  const colors       = PANEL_COLORS[mode]
 
+  const positionIndicator = useCallback((f: Filter, animate: boolean) => {
+    const container = containerRef.current
+    const indicator = indicatorRef.current
+    if (!container || !indicator) return
+    const idx = FILTERS.indexOf(f)
+    const btn = buttonRefs.current[idx]
+    if (!btn) return
+    const cRect = container.getBoundingClientRect()
+    const bRect = btn.getBoundingClientRect()
+    if (animate) {
+      gsap.to(indicator, { x: bRect.left - cRect.left, width: bRect.width, duration: 0.35, ease: 'power3.inOut' })
+    } else {
+      gsap.set(indicator, { x: bRect.left - cRect.left, width: bRect.width })
+    }
+  }, [])
+
+  // Mount only — snap indicator to initial position
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { positionIndicator(filter, false) }, [])
+
+  // Sync indicator color when panel mode changes
+  useEffect(() => {
+    if (indicatorRef.current) {
+      gsap.to(indicatorRef.current, { backgroundColor: colors.text, duration: 0.4 })
+    }
+  }, [mode, colors.text])
+
+  return (
+    <div ref={containerRef} className="relative flex gap-5">
+      {FILTERS.map((f, i) => (
+        <button
+          key={f}
+          ref={el => { buttonRefs.current[i] = el }}
+          onClick={() => { onChange(f); positionIndicator(f, true) }}
+          aria-pressed={filter === f}
+          className="font-sans text-[9px] tracking-extreme transition-opacity duration-200"
+          style={{ opacity: filter === f ? 1 : 0.3, color: colors.text }}
+        >
+          {f}
+        </button>
+      ))}
+      <div
+        ref={indicatorRef}
+        aria-hidden="true"
+        style={{ position: 'absolute', bottom: 0, left: 0, height: '1px', width: 0, backgroundColor: colors.text }}
+      />
+    </div>
+  )
+}
+
+// ─── Hero ─────────────────────────────────────────────────────────────────────
 export function Hero() {
   const { lang, langRef } = useLang()
-  const { viewMode } = useViewMode()
-  const [isMobile, setIsMobile]                     = useState(false)
-  const [filter, setFilter]                         = useState<Filter>('ALL')
-  const [activeTransitionSlug, setActiveTransitionSlug] = useState<string | null>(null)
+  const [filter,     setFilter]     = useState<Filter>('ALL')
+  const [isMobile,   setIsMobile]   = useState(false)
+  const [activeMode, setActiveMode] = useState<PhotoMode>(PHOTOS[0].mode)
 
-  const filteredPhotos = filter === 'ALL' ? PHOTOS
+  const filteredPhotos    = filter === 'ALL' ? PHOTOS
     : PHOTOS.filter(p => filter === 'B&W' ? p.mode === 'dark' : p.mode === 'light')
-  const counterRef   = useRef<HTMLSpanElement>(null)
-  const mCounterRef  = useRef<HTMLSpanElement>(null)
-  const locationRef  = useRef<HTMLParagraphElement>(null)
-  const descRef      = useRef<HTMLParagraphElement>(null)
-  const mDescRefs    = useRef<HTMLParagraphElement[]>([])
-  const photoRefs    = useRef<HTMLDivElement[]>([])
+  const filteredPhotosRef = useRef(filteredPhotos)
+  useEffect(() => { filteredPhotosRef.current = filteredPhotos }, [filteredPhotos])
 
+  // ── Panel refs ──
+  const panelRef    = useRef<HTMLDivElement>(null)
+  const titleRef    = useRef<HTMLParagraphElement>(null)
+  const descRef     = useRef<HTMLParagraphElement>(null)
+  const metaRef     = useRef<HTMLParagraphElement>(null)
+  const locRef      = useRef<HTMLParagraphElement>(null)
+  const counterRef  = useRef<HTMLSpanElement>(null)
+  const viewLinkWrapRef = useRef<HTMLDivElement>(null)
+  const activeIdxRef    = useRef(0)
+
+  // All primary-text elements (animated between #0A0A0A and #F5F5F5)
+  const primaryTextRefs = useRef<(HTMLElement | null)[]>([])
+
+  // ── Photo refs ──
+  const photoRefs = useRef<HTMLDivElement[]>([])
+
+  // ── Mobile detection ──
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
     check()
@@ -50,12 +137,61 @@ export function Hero() {
     return () => window.removeEventListener('resize', check)
   }, [])
 
+  // ── Panel update ──
+  const updatePanel = useCallback((i: number) => {
+    const photos = filteredPhotosRef.current
+    const photo  = photos[i]
+    if (!photo) return
+    activeIdxRef.current = i
+
+    const colors = PANEL_COLORS[photo.mode]
+
+    // Animate panel background
+    if (panelRef.current) {
+      gsap.to(panelRef.current, { backgroundColor: colors.bg, duration: 0.4, ease: 'power2.inOut' })
+    }
+
+    // Cross-fade text: fade out → update content → color → fade in
+    const textEls = primaryTextRefs.current.filter(Boolean) as HTMLElement[]
+    gsap.to(textEls, {
+      opacity: 0, y: -5, duration: 0.18, ease: 'power2.in',
+      onComplete: () => {
+        if (titleRef.current)   titleRef.current.textContent   = photo.title
+        if (descRef.current)    descRef.current.textContent    = photo[langRef.current as 'en' | 'ru']
+        if (metaRef.current)    metaRef.current.textContent    = photo.series
+          ? `${photo.series} · ${photo.year}`
+          : photo.year
+        if (locRef.current)     locRef.current.textContent     = photo.location
+        if (counterRef.current) counterRef.current.textContent = String(i + 1).padStart(2, '0')
+
+        // Update VIEW SERIES link href
+        if (viewLinkWrapRef.current) {
+          const a = viewLinkWrapRef.current.querySelector('a')
+          if (a) a.href = `/work/${photo.slug}`
+        }
+
+        // Instant color change while invisible, then fade in
+        gsap.set(textEls, { color: colors.text })
+        gsap.fromTo(textEls,
+          { opacity: 0, y: 6 },
+          { opacity: 1, y: 0, duration: 0.32, ease: 'power2.out', stagger: 0.035 }
+        )
+      },
+    })
+
+    setActiveMode(photo.mode)
+  }, [langRef])
+
+  // Re-run panel update when language changes
   useEffect(() => {
-    // Trim stale refs from previous filter/viewMode to avoid creating triggers on unmounted elements
+    updatePanel(activeIdxRef.current)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang])
+
+  // ── ScrollTriggers + Lenis snap ──
+  useEffect(() => {
     photoRefs.current.length = filteredPhotos.length
 
-    // Debounce guard: ignore snap calls within 1s of the last one to prevent
-    // recursive snapping when Lenis scrollTo triggers new ScrollTrigger events
     let lastSnapAt = 0
     const snapTo = (el: HTMLElement) => {
       const now = Date.now()
@@ -64,349 +200,230 @@ export function Hero() {
       getLenis()?.scrollTo(el, { offset: -48, duration: 1.1 })
     }
 
+    const triggers: ScrollTrigger[] = []
+
     photoRefs.current.forEach((el, i) => {
       if (!el) return
 
-      // Update desktop panel (LIST mode only)
-      if (!isMobile && viewMode === 'LIST') {
-        ScrollTrigger.create({
+      if (!isMobile) {
+        // Panel update trigger
+        const t1 = ScrollTrigger.create({
           trigger: el,
-          start: 'top 55%', end: 'bottom 45%',
+          start: 'top 50%', end: 'bottom 50%',
           onEnter:     () => updatePanel(i),
           onEnterBack: () => updatePanel(i),
         })
+        triggers.push(t1)
 
-        // Snap: when a photo crosses 38% of the viewport, Lenis smoothly
-        // scrolls to align it with the nav bottom — full-screen frame feel
-        ScrollTrigger.create({
+        // Snap trigger
+        const t2 = ScrollTrigger.create({
           trigger: el,
           start: 'top 38%',
           onEnter:     () => snapTo(el),
           onEnterBack: () => snapTo(el),
         })
+        triggers.push(t2)
       }
 
-      // Mobile: fade description in on scroll
-      if (isMobile) {
-        const mDesc = mDescRefs.current[i]
-        if (mDesc) {
-          gsap.fromTo(mDesc,
-            { opacity: 0, y: 10 },
-            {
-              opacity: 1, y: 0, duration: 0.5, ease: 'power2.out',
-              scrollTrigger: { trigger: el, start: 'top 60%', toggleActions: 'play none none reverse' },
-            }
-          )
-        }
-      }
+      // Ken Burns subtle settle on photo entrance
+      const anim = gsap.fromTo(el,
+        { scale: 1.025 },
+        { scale: 1, duration: 1.2, ease: 'power2.out',
+          scrollTrigger: { trigger: el, start: 'top 70%' } }
+      )
+      if (anim.scrollTrigger) triggers.push(anim.scrollTrigger)
     })
 
-    return () => ScrollTrigger.getAll().forEach(t => t.kill())
-  }, [isMobile, filter, viewMode])
+    // Initialize panel to first photo
+    updatePanel(0)
 
-  function updatePanel(i: number) {
-    const counter  = counterRef.current
-    const desc     = descRef.current
-    const location = locationRef.current
-    const mCount   = mCounterRef.current
+    return () => { triggers.forEach(t => t.kill()) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredPhotos, isMobile])
 
-    const total = filteredPhotos.length
-    if (mCount) mCount.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0')
+  const colors = PANEL_COLORS[activeMode]
 
-    if (!counter || !desc) return
-    const targets = location ? [counter, desc, location] : [counter, desc]
-    gsap.to(targets, {
-      opacity: 0, y: 6, duration: 0.18, ease: 'power2.in',
-      onComplete: () => {
-        counter.textContent = String(i + 1).padStart(2, '0')
-        desc.innerHTML = filteredPhotos[i][langRef.current].replace('\n', '<br/>')
-        if (location) location.textContent = filteredPhotos[i].location
-        gsap.fromTo(targets,
-          { opacity: 0, y: 6 },
-          { opacity: 1, y: 0, duration: 0.32, ease: 'power2.out' }
-        )
-      },
-    })
-  }
-
-  const mono: React.CSSProperties = {
-    fontFamily: 'var(--font-sans), system-ui, sans-serif',
-    color:      'rgba(10,10,10,0.35)',
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // MOBILE LAYOUT
-  // ─────────────────────────────────────────────────────────────────────────────
-  if (isMobile) return (
-    <div style={{ position: 'relative' }}>
-
-      {/* Floating counter — top right, fixed during scroll */}
-      <div style={{
-        position:   'fixed',
-        top:        'calc(var(--nav-h) + 1rem)',
-        right:      '1.25rem',
-        zIndex:     40,
-        pointerEvents: 'none',
-      }}>
-        <span
-          ref={mCounterRef}
-          style={{
-            fontFamily:         'var(--font-sans)',
-            fontSize:           '9px',
-            letterSpacing:      '0.2em',
-            color:              'rgba(10,10,10,0.3)',
-            fontVariantNumeric: 'tabular-nums',
-          }}
-        >
-          01 / {String(TOTAL).padStart(2, '0')}
-        </span>
-      </div>
-
-      {/* Photos — full width */}
-      {PHOTOS.map(({ src, en, ru, slug, position }, i) => (
-        <div key={src} style={{ marginBottom: i < TOTAL - 1 ? '1px' : 0 }}>
-
-          {/* Photo */}
-          <TransitionLink
-            href={`/work/${slug}`}
-            style={{ display: 'block' }}
-            onClick={() => { flushSync(() => setActiveTransitionSlug(slug)) }}
-          >
+  // ─── Mobile layout ──────────────────────────────────────────────────────────
+  if (isMobile) {
+    return (
+      <div>
+        {filteredPhotos.map((photo, i) => (
+          <div key={photo.slug}>
             <div
               ref={el => { if (el) photoRefs.current[i] = el }}
-              style={{
-                position:           'relative',
-                height:             '82svh',
-                overflow:           'hidden',
-                viewTransitionName: activeTransitionSlug === slug ? `photo-${slug}` : undefined,
-              }}
+              className="relative w-full overflow-hidden"
+              style={{ height: '82svh' }}
             >
               <Image
-                src={src}
-                alt={`Алиса Волосникова — ${String(i + 1).padStart(2, '0')}`}
+                src={photo.src}
+                alt={photo.title}
                 fill
                 sizes="100vw"
                 className="object-cover"
-                style={{ objectPosition: position }}
+                style={{ objectPosition: photo.position }}
                 priority={i === 0}
               />
             </div>
-          </TransitionLink>
-
-          {/* Description below photo */}
-          <p
-            ref={el => { if (el) mDescRefs.current[i] = el }}
-            style={{
-              fontFamily:  'var(--font-serif), Georgia, serif',
-              fontStyle:   'italic',
-              fontSize:    'clamp(0.85rem, 3.5vw, 1rem)',
-              lineHeight:  1.6,
-              color:       'rgba(10,10,10,0.5)',
-              padding:     '1.25rem 1.25rem 1.75rem',
-              margin:      0,
-              opacity:     0,
-            }}
-            dangerouslySetInnerHTML={{ __html: (lang === 'en' ? en : ru).replace('\n', '<br/>') }}
-          />
-
-        </div>
-      ))}
-
-    </div>
-  )
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // DESKTOP — GRID LAYOUT (asymmetric editorial grid, 5 columns)
-  // Row pattern: [3,2], [2,3], [3,2], [2,3] … last lone photo → span 5
-  // ─────────────────────────────────────────────────────────────────────────────
-  if (viewMode === 'GRID') {
-    const getSpan = (i: number, total: number): number => {
-      const isLastAlone = total % 2 !== 0 && i === total - 1
-      if (isLastAlone) return 5
-      const rowIndex = Math.floor(i / 2)          // which row pair
-      const posInRow = i % 2                       // 0 = left, 1 = right
-      const isEvenRow = rowIndex % 2 === 0
-      if (isEvenRow) return posInRow === 0 ? 3 : 2 // [wide, narrow]
-      else           return posInRow === 0 ? 2 : 3  // [narrow, wide]
-    }
-
-    return (
-      <div style={{ padding: '2rem 2.5rem 6rem' }}>
-        <div style={{
-          display:             'grid',
-          gridTemplateColumns: 'repeat(5, 1fr)',
-          gap:                 '3px',
-          alignItems:          'start',
-        }}>
-          {filteredPhotos.map(({ src, slug, location, position }, i) => {
-            const span  = getSpan(i, filteredPhotos.length)
-            const isWide = span >= 4
-            const sizes = isWide ? '80vw' : span === 3 ? '60vw' : '40vw'
-            return (
-              <TransitionLink
-                key={src}
-                href={`/work/${slug}`}
-                style={{
-                  position:           'relative',
-                  aspectRatio:        isWide ? '16/9' : '3/4',
-                  overflow:           'hidden',
-                  display:            'block',
-                  gridColumn:         `span ${span}`,
-                  viewTransitionName: activeTransitionSlug === slug ? `photo-${slug}` : undefined,
-                }}
-                onClick={() => { flushSync(() => setActiveTransitionSlug(slug)) }}
+            <div className="px-6 pt-5 pb-10">
+              <p
+                className="font-serif italic"
+                style={{ fontSize: 'clamp(1.6rem, 5vw, 2.8rem)', fontWeight: 300, lineHeight: 1.05, color: 'var(--color-text-dark)' }}
               >
-                <Image
-                  src={src}
-                  alt={`Алиса Волосникова — ${String(i + 1).padStart(2, '0')}`}
-                  fill
-                  sizes={sizes}
-                  className="object-cover"
-                  style={{ objectPosition: position }}
-                  priority={i < 4}
-                />
-                <span style={{
-                  position:      'absolute',
-                  bottom:        '0.75rem',
-                  left:          '0.75rem',
-                  fontFamily:    'var(--font-sans)',
-                  fontSize:      '8px',
-                  letterSpacing: '0.22em',
-                  textTransform: 'uppercase',
-                  color:         'rgba(245,245,245,0.7)',
-                }}>
-                  {location}
-                </span>
-              </TransitionLink>
-            )
-          })}
-        </div>
+                {photo.title}
+              </p>
+              <p
+                className="font-serif italic mt-2"
+                style={{ fontSize: '13px', lineHeight: 1.8, opacity: 0.6, color: 'var(--color-text-dark)', whiteSpace: 'pre-line' }}
+              >
+                {photo[lang as 'en' | 'ru']}
+              </p>
+              <p className="font-sans text-[9px] tracking-extreme text-muted mt-3">
+                {photo.location}
+              </p>
+            </div>
+          </div>
+        ))}
       </div>
     )
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // DESKTOP — LIST LAYOUT (photos left + sticky panel right) — default
-  // ─────────────────────────────────────────────────────────────────────────────
+  // ─── Desktop layout ──────────────────────────────────────────────────────────
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-
-      {/* Scrolling photo column — LEFT */}
-      <div style={{ flex: 1, overflow: 'hidden' }}>
-        {filteredPhotos.map(({ src, slug, position }, i) => (
-          <TransitionLink
-            key={src}
-            href={`/work/${slug}`}
-            style={{ display: 'block', marginBottom: i < filteredPhotos.length - 1 ? '5px' : 0 }}
-            onClick={() => { flushSync(() => setActiveTransitionSlug(slug)) }}
+    <div className="flex">
+      {/* Left: photo sequence — 70% */}
+      <div className="w-[70%] flex-shrink-0">
+        {filteredPhotos.map((photo, i) => (
+          <div
+            key={photo.slug}
+            ref={el => { if (el) photoRefs.current[i] = el }}
+            className="relative w-full overflow-hidden"
+            style={{ height: '100svh' }}
           >
-            <div
-              ref={el => { if (el) photoRefs.current[i] = el }}
-              style={{
-                position:           'relative',
-                height:             '100vh',
-                overflow:           'hidden',
-                viewTransitionName: activeTransitionSlug === slug ? `photo-${slug}` : undefined,
-              }}
-            >
-              <Image
-                src={src}
-                alt={`Алиса Волосникова — ${String(i + 1).padStart(2, '0')}`}
-                fill
-                sizes="70vw"
-                className="object-cover"
-                style={{ objectPosition: position }}
-                priority={i === 0}
-              />
-            </div>
-          </TransitionLink>
-        ))}
-
-      </div>
-
-      {/* Sticky right panel */}
-      <div style={{
-        position:       'sticky',
-        top:            'var(--nav-h)',
-        width:          '30%',
-        height:         'calc(100vh - var(--nav-h))',
-        background:     'var(--color-cream)',
-        flexShrink:     0,
-        display:        'flex',
-        flexDirection:  'column',
-        justifyContent: 'space-between',
-        padding:        '2.5rem',
-      }}>
-
-        {/* Filter buttons — top */}
-        <div style={{ display: 'flex', gap: '1.25rem' }}>
-          {(['ALL', 'B&W', 'COLOR'] as Filter[]).map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              style={{
-                fontFamily:    'var(--font-sans)',
-                fontSize:      '9px',
-                letterSpacing: '0.2em',
-                background:    'none',
-                border:        'none',
-                padding:       0,
-                cursor:        'pointer',
-                color:         '#0A0A0A',
-                opacity:       filter === f ? 1 : 0.3,
-                transition:    'opacity 0.2s',
-              }}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
-
-        <p
-          ref={descRef}
-          style={{
-            fontFamily: 'var(--font-serif), Georgia, serif',
-            fontStyle:  'italic',
-            fontSize:   'clamp(0.95rem, 1.15vw, 1.25rem)',
-            lineHeight: 1.65,
-            color:      'rgba(10,10,10,0.6)',
-            maxWidth:   '20ch',
-            margin:     0,
-          }}
-          dangerouslySetInnerHTML={{ __html: (filteredPhotos[0] ?? PHOTOS[0])[lang].replace('\n', '<br/>') }}
-        />
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {/* Giant numeral — editorial watermark */}
-          <div style={{ position: 'relative', lineHeight: 1 }}>
-            <span
-              ref={counterRef}
-              style={{
-                display:            'block',
-                fontFamily:         'var(--font-serif), Georgia, serif',
-                fontStyle:          'italic',
-                fontWeight:         300,
-                fontSize:           'clamp(5rem, 8vw, 9rem)',
-                letterSpacing:      '-0.03em',
-                lineHeight:         0.85,
-                color:              'rgba(10,10,10,0.1)',
-                fontVariantNumeric: 'tabular-nums',
-                userSelect:         'none',
-              }}
-            >
-              01
-            </span>
-            <span style={{ ...mono, fontSize: '8px', letterSpacing: '0.22em' }}>
-              / {String(filteredPhotos.length).padStart(2, '0')}
-            </span>
+            <Image
+              src={photo.src}
+              alt={photo.title}
+              fill
+              sizes="70vw"
+              className="object-cover"
+              style={{ objectPosition: photo.position }}
+              priority={i === 0}
+            />
           </div>
-          {/* Location — below counter */}
-          <p ref={locationRef} style={{ ...mono, fontSize: '8px', letterSpacing: '0.28em', textTransform: 'uppercase', marginTop: '0.5rem' }}>
-            {filteredPhotos[0]?.location ?? PHOTOS[0].location}
-          </p>
-        </div>
+        ))}
       </div>
 
+      {/* Right: sticky adaptive panel — 30% */}
+      <div className="w-[30%]">
+        <div
+          ref={panelRef}
+          style={{
+            position:        'sticky',
+            top:             'var(--nav-h)',
+            height:          'calc(100svh - var(--nav-h))',
+            backgroundColor: PANEL_COLORS[filteredPhotos[0]?.mode ?? 'dark'].bg,
+            display:         'flex',
+            flexDirection:   'column',
+            justifyContent:  'space-between',
+          }}
+        >
+          {/* TOP: artist name + rule + filter */}
+          <div className="px-8 pt-10">
+            <p className="font-sans text-[9px] tracking-extreme" style={{ color: colors.muted }}>
+              АЛИСА ВОЛОСНИКОВА
+            </p>
+            <div style={{ height: '1px', background: colors.rule, margin: '12px 0 16px' }} />
+            <FilterBar filter={filter} onChange={setFilter} mode={activeMode} />
+            <div style={{ height: '1px', background: colors.rule, marginTop: '16px' }} />
+          </div>
+
+          {/* MIDDLE: series/year + title + description + location */}
+          <div className="px-8 flex flex-col gap-3 flex-1 justify-center">
+            <p
+              ref={el => { metaRef.current = el; primaryTextRefs.current[0] = el }}
+              className="font-sans text-[9px] tracking-extreme"
+              style={{ color: colors.muted }}
+            >
+              {filteredPhotos[0]?.series
+                ? `${filteredPhotos[0].series} · ${filteredPhotos[0].year}`
+                : filteredPhotos[0]?.year ?? ''}
+            </p>
+            <p
+              ref={el => { titleRef.current = el; primaryTextRefs.current[1] = el }}
+              className="font-serif italic"
+              style={{
+                fontSize:      'clamp(2rem, 2.8vw, 4rem)',
+                fontWeight:    300,
+                letterSpacing: '-0.02em',
+                lineHeight:    1.0,
+                color:         colors.text,
+                whiteSpace:    'pre-line',
+              }}
+            >
+              {filteredPhotos[0]?.title ?? ''}
+            </p>
+            <p
+              ref={el => { descRef.current = el; primaryTextRefs.current[2] = el }}
+              className="font-serif italic"
+              style={{
+                fontSize:   'clamp(0.85rem, 1.05vw, 1.2rem)',
+                lineHeight: 1.85,
+                color:      colors.text,
+                opacity:    0.55,
+                maxWidth:   '26ch',
+                whiteSpace: 'pre-line',
+              }}
+            >
+              {filteredPhotos[0]?.en ?? ''}
+            </p>
+            <p
+              ref={el => { locRef.current = el; primaryTextRefs.current[3] = el }}
+              className="font-sans text-[9px] tracking-extreme"
+              style={{ color: colors.muted, marginTop: '4px' }}
+            >
+              {filteredPhotos[0]?.location ?? ''}
+            </p>
+          </div>
+
+          {/* BOTTOM: watermark counter + view link */}
+          <div className="px-8 pb-10">
+            <div style={{ lineHeight: 0.85, marginBottom: '24px' }}>
+              <span
+                ref={el => { counterRef.current = el; primaryTextRefs.current[4] = el }}
+                className="font-serif italic block"
+                style={{
+                  fontSize:   'clamp(4.5rem, 6.5vw, 8rem)',
+                  fontWeight: 300,
+                  color:      colors.text,
+                  opacity:    0.07,
+                }}
+              >
+                {String(1).padStart(2, '0')}
+              </span>
+              <span
+                className="font-serif italic block"
+                style={{
+                  fontSize:   'clamp(1.5rem, 2vw, 2.5rem)',
+                  fontWeight: 300,
+                  color:      colors.muted,
+                  opacity:    0.5,
+                }}
+              >
+                / {String(filteredPhotos.length).padStart(2, '0')}
+              </span>
+            </div>
+            <div ref={viewLinkWrapRef}>
+              <TransitionLink
+                href={`/work/${filteredPhotos[0]?.slug ?? ''}`}
+                data-cursor="link"
+                className="font-sans text-[9px] tracking-extreme transition-opacity duration-300 hover:opacity-40"
+                style={{ color: colors.text }}
+              >
+                VIEW SERIES →
+              </TransitionLink>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
